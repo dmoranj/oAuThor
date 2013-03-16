@@ -2,12 +2,14 @@
 
 var express = require('express'),
     clientRoutes = require('./routes/clientManagement'),
+    grantRoutes = require('./routes/grantManagement'),
     http = require('http'),
     path = require('path'),
     config = require('./config');
 
 function defineRoutes(app) {
     app.post('/register', clientRoutes.create);
+    app.post('/grant', grantRoutes.create);
 }
 
 function create(callback) {

@@ -1,12 +1,39 @@
 "use strict";
 
 var
-    request = require("request");
+    request = require("request"),
+    clients = require("../lib/clientService"),
+    async = require("async");
 
 describe("Authorization Management", function () {
+    beforeEach(function () {
+        clients.create("http://redirecturi.com", "testApp", "confidential", function (error, result) {
+
+        });
+    });
 
     describe("When a grant request arrives", function () {
-        it("should reject requests for unexistent clients");
+        var
+            options;
+
+        beforeEach(function () {
+            options = {
+                url: 'http://localhost:3000/grant',
+                method: 'POST',
+                json: {
+                    clientId: 'testApp'
+                }
+            };
+        });
+
+        it("should reject requests if the client does not exist", function (done) {
+            options.json.clientId = "falseApp";
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(401);
+                done();
+            });
+        });
 
         it("should save the grant in the database");
 
@@ -14,22 +41,8 @@ describe("Authorization Management", function () {
     });
 
     describe("When an authorization request arrives", function () {
-        var
-            options = {
-                url: 'http://localhost:3000/identify',
-                method: 'GET',
-                json: {
-                }
-            };
 
-        it("should reject requests without a valid code", function (done) {
-            /*request(req, function(err, response, body) {
-                expect(err).toBeNull();
-                expect(response.statusCode).toEqual(200);
-
-                done();
-            });*/ done();
-        });
+        it("should reject requests without a valid code");
 
         it("should reject requests with an expired code");
 
