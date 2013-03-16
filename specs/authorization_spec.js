@@ -3,6 +3,7 @@
 var
     request = require("request"),
     clients = require("../lib/clientService"),
+    grants = require("../lib/grantService"),
     async = require("async");
 
 describe("Authorization Management", function () {
@@ -16,14 +17,19 @@ describe("Authorization Management", function () {
         var
             options;
 
-        beforeEach(function () {
-            options = {
-                url: 'http://localhost:3000/grant',
-                method: 'POST',
-                json: {
-                    clientId: 'testApp'
-                }
-            };
+        beforeEach(function (done) {
+            clients.create("http://fakedredirect.com", "testApp", "confidential", function (err, client) {
+                options = {
+                    url: 'http://localhost:3000/grant',
+                    method: 'POST',
+                    json: {
+                        clientId: client.id,
+                        scope: "/stuff"
+                    }
+                };
+
+                done();
+            });
         });
 
         it("should reject requests if the client does not exist", function (done) {
@@ -35,7 +41,26 @@ describe("Authorization Management", function () {
             });
         });
 
-        it("should save the grant in the database");
+        it("should reject requests if they don't have a scope", function (done) {
+            delete options.json.scope;
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(400);
+                done();
+            });
+        });
+
+        it("should save the grant in the database", function (done) {
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(200);
+
+                grants.find(options.json.clientId, function (error, grantList) {
+                    expect(error).toBeNull();
+                    expect(grantList.length).toEqual(1);
+                    done();
+                });
+            });
+        });
 
         it("should return the redirection URI for the specified client, and the access code");
     });
