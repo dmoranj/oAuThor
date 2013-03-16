@@ -1,0 +1,15 @@
+{
+  "name": "oAuThor",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app"
+  },
+  "dependencies": {
+    "express": "3.0.0rc3",
+    "node-uuid": "1.4.0",
+    "jade": "*",
+    "async": "0.2.5",
+    "request": "*"
+  }
+}
