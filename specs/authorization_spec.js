@@ -6,7 +6,9 @@ var
     grants = require("../lib/grantService"),
     async = require("async"),
     REDIRECT_URI = "http://redirecturi.com",
+    SCOPE = "/stuff",
     CLIENT_ID,
+    code,
     options;
 
 describe("Authorization Management", function () {
@@ -23,7 +25,7 @@ describe("Authorization Management", function () {
                 method: 'POST',
                 json: {
                     clientId: CLIENT_ID,
-                    scope: "/stuff"
+                    scope: SCOPE
                 }
             };
         });
@@ -69,18 +71,30 @@ describe("Authorization Management", function () {
     });
 
     describe("When an authorization request arrives", function () {
-        beforeEach(function () {
-            options = {
-                url: 'http://localhost:3000/token',
-                method: 'GET',
-                json: {
-                    clientId: CLIENT_ID,
-                    scope: "/stuff"
-                }
-            };
+        beforeEach(function (done) {
+            grants.add(CLIENT_ID, SCOPE, function (err, result) {
+                options = {
+                    url: 'http://localhost:3000/token',
+                    method: 'GET',
+                    json: {
+                        clientId: CLIENT_ID,
+                        scope: SCOPE,
+                        code: result.code
+                    }
+                };
+
+                done();
+            });
         });
 
-        it("should reject requests without a valid code");
+        it("should reject requests without a valid code", function (done) {
+            options.json.code = "Faked Code";
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(401);
+                done();
+            });
+        });
 
         it("should reject requests with an expired code");
 
