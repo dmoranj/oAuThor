@@ -1,3 +1,5 @@
+"use strict";
+
 function checkParameter(param, message, req) {
     return function (callback) {
         var
@@ -13,11 +15,11 @@ function checkParameter(param, message, req) {
     };
 }
 
-function render(req, res, err, results) {
+function render(req, res, index, err, results) {
     if (err) {
         res.send(err.code, err.message);
     } else {
-        res.json(200, results[1]);
+        res.json(200, results[index]);
     }
 }
 

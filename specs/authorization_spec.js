@@ -4,12 +4,14 @@ var
     request = require("request"),
     clients = require("../lib/clientService"),
     grants = require("../lib/grantService"),
-    async = require("async");
+    async = require("async"),
+    REDIRECT_URI = "http://redirecturi.com",
+    CLIENT_ID;
 
 describe("Authorization Management", function () {
     beforeEach(function () {
-        clients.create("http://redirecturi.com", "testApp", "confidential", function (error, result) {
-
+        clients.create(REDIRECT_URI, "testApp", "confidential", function (error, result) {
+            CLIENT_ID = result.id;
         });
     });
 
@@ -18,18 +20,16 @@ describe("Authorization Management", function () {
             options;
 
         beforeEach(function (done) {
-            clients.create("http://fakedredirect.com", "testApp", "confidential", function (err, client) {
-                options = {
-                    url: 'http://localhost:3000/grant',
-                    method: 'POST',
-                    json: {
-                        clientId: client.id,
-                        scope: "/stuff"
-                    }
-                };
+            options = {
+                url: 'http://localhost:3000/grant',
+                method: 'POST',
+                json: {
+                    clientId: CLIENT_ID,
+                    scope: "/stuff"
+                }
+            };
 
-                done();
-            });
+            done();
         });
 
         it("should reject requests if the client does not exist", function (done) {
@@ -62,7 +62,14 @@ describe("Authorization Management", function () {
             });
         });
 
-        it("should return the redirection URI for the specified client, and the access code");
+        it("should return the redirection URI for the specified client, and the access code", function (done) {
+            request(options, function (err, response, body) {
+                expect(body.redirectUri).toEqual(REDIRECT_URI);
+                expect(body.clientId).toEqual(CLIENT_ID);
+
+                done();
+            });
+        });
     });
 
     describe("When an authorization request arrives", function () {

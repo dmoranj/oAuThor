@@ -36,5 +36,5 @@ exports.create = function (req, res) {
     series([
         apply(checkCreateParameters, req),
         apply(clients.create, req.body.redirectUri, req.body.appName, req.body.type)
-    ], apply(utils.render, req, res));
+    ], apply(utils.render, req, res, 1));
 };

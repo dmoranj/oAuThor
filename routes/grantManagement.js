@@ -31,7 +31,7 @@ function createGrant(req, res) {
     series([
         apply(checkCreateParameters, req),
         apply(grants.add, req.body.clientId, req.body.scope)
-    ], apply(utils.render, req, res));
+    ], apply(utils.render, req, res, 1));
 }
 
 exports.create = createGrant;
