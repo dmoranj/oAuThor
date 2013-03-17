@@ -6,7 +6,8 @@ var
     grants = require("../lib/grantService"),
     async = require("async"),
     REDIRECT_URI = "http://redirecturi.com",
-    CLIENT_ID;
+    CLIENT_ID,
+    options;
 
 describe("Authorization Management", function () {
     beforeEach(function () {
@@ -16,10 +17,7 @@ describe("Authorization Management", function () {
     });
 
     describe("When a grant request arrives", function () {
-        var
-            options;
-
-        beforeEach(function (done) {
+        beforeEach(function () {
             options = {
                 url: 'http://localhost:3000/grant',
                 method: 'POST',
@@ -28,15 +26,13 @@ describe("Authorization Management", function () {
                     scope: "/stuff"
                 }
             };
-
-            done();
         });
 
         it("should reject requests if the client does not exist", function (done) {
             options.json.clientId = "falseApp";
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(401);
+                expect(response.statusCode).toEqual(404);
                 done();
             });
         });
@@ -65,7 +61,7 @@ describe("Authorization Management", function () {
         it("should return the redirection URI for the specified client, and the access code", function (done) {
             request(options, function (err, response, body) {
                 expect(body.redirectUri).toEqual(REDIRECT_URI);
-                expect(body.clientId).toEqual(CLIENT_ID);
+                expect(body.code).toMatch(/[0-9A-Fa-f\-]{36}/);
 
                 done();
             });
@@ -73,6 +69,16 @@ describe("Authorization Management", function () {
     });
 
     describe("When an authorization request arrives", function () {
+        beforeEach(function () {
+            options = {
+                url: 'http://localhost:3000/token',
+                method: 'GET',
+                json: {
+                    clientId: CLIENT_ID,
+                    scope: "/stuff"
+                }
+            };
+        });
 
         it("should reject requests without a valid code");
 

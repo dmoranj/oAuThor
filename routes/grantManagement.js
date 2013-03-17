@@ -8,22 +8,10 @@ var
     series = async.series,
     apply = async.apply;
 
-function checkIdExistance(req, callback) {
-    clients.find(req.body.clientId, function (err, client) {
-        if (err) {
-            err.code = 401;
-            callback(err);
-        } else {
-            callback(null, client);
-        }
-    });
-}
-
 function checkCreateParameters(req, callback) {
     series([
         utils.check("clientId", "Client ID is missing", req),
-        utils.check("scope", "The scope is missing", req),
-        apply(checkIdExistance, req)
+        utils.check("scope", "The scope is missing", req)
     ], callback);
 }
 
