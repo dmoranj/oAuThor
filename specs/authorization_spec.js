@@ -9,6 +9,7 @@ var
     REDIRECT_URI = "http://redirecturi.com",
     SCOPE = "/stuff",
     CLIENT_ID,
+    FAKED_CLIENT_ID,
     code,
     options;
 
@@ -16,6 +17,10 @@ describe("Authorization Management", function () {
     beforeEach(function () {
         clients.create(REDIRECT_URI, "testApp", "confidential", function (error, result) {
             CLIENT_ID = result.id;
+
+            clients.create("http://fakedRedirection", "Faked App", "confidential", function (error, result) {
+                FAKED_CLIENT_ID = result.id;
+            });
         });
     });
 
@@ -73,6 +78,8 @@ describe("Authorization Management", function () {
 
     describe("When an authorization request arrives", function () {
         beforeEach(function (done) {
+            config.tokens.expireTime = -(24 * 60 * 60 * 1000);
+
             grants.add(CLIENT_ID, SCOPE, function (err, result) {
                 options = {
                     url: 'http://localhost:3000/token',
@@ -106,7 +113,14 @@ describe("Authorization Management", function () {
             });
         });
 
-        it("should reject requests if the clientId does not match the one associated to the token");
+        it("should reject requests if the clientId does not match the one associated to the token", function(done) {
+            options.json.clientId = FAKED_CLIENT_ID;
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(401);
+                done();
+            });
+        });
 
         it("should reject requests if the clientSecret does not correspond to that clientId");
 
