@@ -4,6 +4,7 @@ var
     request = require("request"),
     clients = require("../lib/clientService"),
     grants = require("../lib/grantService"),
+    config = require("../config"),
     async = require("async"),
     REDIRECT_URI = "http://redirecturi.com",
     SCOPE = "/stuff",
@@ -96,7 +97,14 @@ describe("Authorization Management", function () {
             });
         });
 
-        it("should reject requests with an expired code");
+        it("should reject requests with an expired code", function (done) {
+            config.tokens.expireTime = -(60 * 60 * 1000);
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(401);
+                done();
+            });
+        });
 
         it("should reject requests if the clientId does not match the one associated to the token");
 
