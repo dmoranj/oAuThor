@@ -9,6 +9,7 @@ var
     REDIRECT_URI = "http://redirecturi.com",
     SCOPE = "/stuff",
     CLIENT_ID,
+    CLIENT_SECRET,
     FAKED_CLIENT_ID,
     code,
     options;
@@ -17,7 +18,7 @@ describe("Authorization Management", function () {
     beforeEach(function () {
         clients.create(REDIRECT_URI, "testApp", "confidential", function (error, result) {
             CLIENT_ID = result.id;
-
+            CLIENT_SECRET = result.secret;
             clients.create("http://fakedRedirection", "Faked App", "confidential", function (error, result) {
                 FAKED_CLIENT_ID = result.id;
             });
@@ -78,7 +79,7 @@ describe("Authorization Management", function () {
 
     describe("When an authorization request arrives", function () {
         beforeEach(function (done) {
-            config.tokens.expireTime = -(24 * 60 * 60 * 1000);
+            config.tokens.expireTime = (24 * 60 * 60 * 1000);
 
             grants.add(CLIENT_ID, SCOPE, function (err, result) {
                 options = {
@@ -87,7 +88,8 @@ describe("Authorization Management", function () {
                     json: {
                         clientId: CLIENT_ID,
                         scope: SCOPE,
-                        code: result.code
+                        code: result.code,
+                        clientSecret: ""
                     }
                 };
 
@@ -113,7 +115,7 @@ describe("Authorization Management", function () {
             });
         });
 
-        it("should reject requests if the clientId does not match the one associated to the token", function(done) {
+        it("should reject requests if the clientId does not match the one associated to the token", function (done) {
             options.json.clientId = FAKED_CLIENT_ID;
 
             request(options, function (err, response, body) {
@@ -122,7 +124,14 @@ describe("Authorization Management", function () {
             });
         });
 
-        it("should reject requests if the clientSecret does not correspond to that clientId");
+        it("should reject requests if the clientSecret does not correspond to that clientId", function (done) {
+            options.json.clientSecret = "Bad secret";
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(401);
+                done();
+            });
+        });
 
         it("should return an authorization token and a refresh token when the code is valid");
     });

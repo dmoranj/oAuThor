@@ -18,7 +18,7 @@ function checkCreateParameters(req, callback) {
 function getToken(req, res) {
     series([
         apply(checkCreateParameters, req),
-        apply(tokens.get, req.body.clientId, req.body.scope, req.body.code)
+        apply(tokens.get, req.body.clientId, req.body.clientSecret, req.body.scope, req.body.code)
     ], apply(utils.render, req, res, 1));
 }
 
