@@ -43,13 +43,9 @@ function createMockApp(callback) {
     callback(null, server);
 }
 
-function stopMockApp(server, callback) {
+function close(server, callback) {
     server.close(callback);
 }
 
 exports.createMockApp = createMockApp;
-exports.stopMockApp = stopMockApp;
-
-createMockApp(function (server) {
-    console.log("Started");
-});
+exports.close = close;
