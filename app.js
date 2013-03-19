@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var express = require('express'),
     clientRoutes = require('./routes/clientManagement'),
@@ -15,8 +15,8 @@ function defineRoutes(app) {
 }
 
 function create(callback) {
-    var
-        app = express();
+    var app = express(),
+        server;
 
     app.configure(function () {
         app.set('port', process.env.PORT || config.endpoint.port);
@@ -36,15 +36,15 @@ function create(callback) {
 
     defineRoutes(app);
 
-    http.createServer(app).listen(app.get('port'), function () {
-        console.log("Express server listening on port " + app.get('port'));
+    server = http.createServer(app).listen(app.get('port'), function () {
+        console.log('Express server listening on port ' + app.get('port'));
     });
 
-    callback(null, app);
+    callback(null, server);
 }
 
-function close(app, callback) {
-    app.close(callback);
+function close(server, callback) {
+    server.close(callback);
 }
 
 exports.create = create;

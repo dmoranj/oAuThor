@@ -1,6 +1,6 @@
 "use strict";
 
-var
+var apps = require("../app"),
     request = require("request"),
     clients = require("../lib/clientService"),
     grants = require("../lib/grantService"),
@@ -12,16 +12,29 @@ var
     CLIENT_SECRET,
     FAKED_CLIENT_ID,
     code,
-    options;
+    options,
+    server;
 
 describe("Authorization Management", function () {
-    beforeEach(function () {
-        clients.create(REDIRECT_URI, "testApp", "confidential", function (error, result) {
-            CLIENT_ID = result.id;
-            CLIENT_SECRET = result.secret;
-            clients.create("http://fakedRedirection", "Faked App", "confidential", function (error, result) {
-                FAKED_CLIENT_ID = result.id;
+    beforeEach(function (done) {
+        apps.create(function (error, createdServer) {
+            clients.create(REDIRECT_URI, "testApp", "confidential", function (error, result) {
+                CLIENT_ID = result.id;
+                CLIENT_SECRET = result.secret;
+                clients.create("http://fakedRedirection", "Faked App", "confidential", function (error, result) {
+                    FAKED_CLIENT_ID = result.id;
+
+                    done();
+                });
             });
+
+            server = createdServer;
+        });
+    });
+
+    afterEach(function (done) {
+        apps.close(server, function () {
+            done();
         });
     });
 

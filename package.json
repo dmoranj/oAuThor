@@ -9,6 +9,7 @@
     "express": "3.0.0rc3",
     "node-uuid": "1.4.0",
     "jade": "*",
+    "http-proxy": "*",
     "async": "0.2.5",
     "request": "*"
   }
