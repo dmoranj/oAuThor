@@ -89,7 +89,7 @@ describe("Authorization Management", function () {
                         clientId: CLIENT_ID,
                         scope: SCOPE,
                         code: result.code,
-                        clientSecret: ""
+                        clientSecret: CLIENT_SECRET
                     }
                 };
 
@@ -133,7 +133,14 @@ describe("Authorization Management", function () {
             });
         });
 
-        it("should return an authorization token and a refresh token when the code is valid");
+        it("should return an authorization token and a refresh token when the code is valid", function (done) {
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(200);
+                expect(body.token).toMatch(/[0-9A-Fa-f\-]{36}/);
+                expect(body.refresh).toMatch(/[0-9A-Fa-f\-]{36}/);
+                done();
+            });
+        });
     });
 
     describe("When a refresh request arrives", function () {
