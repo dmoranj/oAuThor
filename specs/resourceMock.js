@@ -6,13 +6,15 @@ var express = require('express'),
 
 function insecureRoute(req, res) {
     res.json(200, {
-        message: "This content should be insecure"
+        message: "This content should be insecure",
+        secure: false
     });
 }
 
 function secureRoute(req, res) {
     res.json(200, {
-        message: "This content should be secure"
+        message: "This content should be secure",
+        secure: true
     });
 }
 
