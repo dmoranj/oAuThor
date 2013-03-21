@@ -1,11 +1,11 @@
 "use strict";
 
-function checkParameter(param, message, req) {
+function checkParameter(param, message, data) {
     return function (callback) {
         var
             error = {};
 
-        if (!req.body.hasOwnProperty(param)) {
+        if (!data.hasOwnProperty(param)) {
             error.code = 400;
             error.message = message;
             callback(error);
@@ -13,6 +13,14 @@ function checkParameter(param, message, req) {
             callback(null);
         }
     };
+}
+
+function checkQuery(param, message, req) {
+    return checkParameter(param, message, req.query);
+}
+
+function checkBody(param, message, req) {
+    return checkParameter(param, message, req.body);
 }
 
 function render(req, res, index, err, results) {
@@ -28,5 +36,7 @@ function extractCredentials(authHeader) {
 }
 
 exports.check = checkParameter;
+exports.checkBody = checkBody;
+exports.checkQuery = checkQuery;
 exports.render = render;
 exports.extract = extractCredentials;

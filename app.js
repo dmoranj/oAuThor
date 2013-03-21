@@ -10,8 +10,8 @@ var express = require('express'),
 
 function defineRoutes(app) {
     app.post('/register', clientRoutes.create);
-    app.post('/grant', grantRoutes.create);
-    app.get('/token', tokenRoutes.get);
+    app.get('/grant', grantRoutes.create);
+    app.post('/token', tokenRoutes.get);
 }
 
 function create(callback) {

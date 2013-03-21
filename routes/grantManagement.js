@@ -10,15 +10,15 @@ var
 
 function checkCreateParameters(req, callback) {
     series([
-        utils.check("client_id", "Client ID is missing", req),
-        utils.check("scope", "The scope is missing", req)
+        utils.checkQuery("client_id", "Client ID is missing", req),
+        utils.checkQuery("scope", "The scope is missing", req)
     ], callback);
 }
 
 function createGrant(req, res) {
     series([
         apply(checkCreateParameters, req),
-        apply(grants.add, req.body.client_id, req.body.scope)
+        apply(grants.add, req.query.client_id, req.query.scope)
     ], apply(utils.render, req, res, 1));
 }
 

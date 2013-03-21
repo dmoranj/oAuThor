@@ -9,9 +9,9 @@ var
 
 function checkCreateParameters(req, callback) {
     series([
-        utils.check("code", "Authorization code is missing", req),
-        utils.check("scope", "The authorization scope is missing", req),
-        utils.check("client_id", "The client ID is missing", req)
+        utils.checkBody("code", "Authorization code is missing", req),
+        utils.checkBody("scope", "The authorization scope is missing", req),
+        utils.checkBody("client_id", "The client ID is missing", req)
     ], callback);
 }
 

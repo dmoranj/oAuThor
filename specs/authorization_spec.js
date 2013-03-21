@@ -42,16 +42,19 @@ describe("Authorization Management", function () {
         beforeEach(function () {
             options = {
                 url: 'http://localhost:3000/grant',
-                method: 'POST',
-                json: {
+                method: 'GET',
+                qs: {
                     client_id: CLIENT_ID,
                     scope: SCOPE
+                },
+                json: {
+
                 }
             };
         });
 
         it("should reject requests if the client does not exist", function (done) {
-            options.json.client_id = "falseApp";
+            options.qs.client_id = "falseApp";
 
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(404);
@@ -60,7 +63,7 @@ describe("Authorization Management", function () {
         });
 
         it("should reject requests if they don't have a scope", function (done) {
-            delete options.json.scope;
+            delete options.qs.scope;
 
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(400);
@@ -72,7 +75,7 @@ describe("Authorization Management", function () {
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(200);
 
-                grants.find(options.json.client_id, function (error, grantList) {
+                grants.find(options.qs.client_id, function (error, grantList) {
                     expect(error).toBeNull();
                     expect(grantList.length).toEqual(1);
                     done();
@@ -97,7 +100,7 @@ describe("Authorization Management", function () {
             grants.add(CLIENT_ID, SCOPE, function (err, result) {
                 options = {
                     url: 'http://localhost:3000/token',
-                    method: 'GET',
+                    method: 'POST',
                     json: {
                         client_id: CLIENT_ID,
                         scope: SCOPE,
@@ -108,11 +111,6 @@ describe("Authorization Management", function () {
 
                 done();
             });
-        });
-
-        afterEach(function (done) {
-            delete options.headers;
-            done();
         });
 
         it("should reject requests without a valid code", function (done) {

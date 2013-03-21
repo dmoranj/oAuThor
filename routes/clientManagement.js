@@ -25,9 +25,9 @@ function checkType(req) {
 
 function checkCreateParameters(req, callback) {
     series([
-        utils.check("redirectUri", "Redirect URI missing", req),
-        utils.check("appName", "App Name missing", req),
-        utils.check("type", "Client type missing (confidential | public)", req),
+        utils.checkBody("redirectUri", "Redirect URI missing", req),
+        utils.checkBody("appName", "App Name missing", req),
+        utils.checkBody("type", "Client type missing (confidential | public)", req),
         checkType(req)
     ], callback);
 }
