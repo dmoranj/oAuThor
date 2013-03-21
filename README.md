@@ -9,7 +9,7 @@ system will provide:
 * Access control based on bearer tokens with a resource proxy.
 * Authorization server, capable of: managing client apps, grants and authorization codes and creation and management of bearer tokens.
 
-Current implementation does not persist its information on clients, tokens and grants, for its purpose its merely
+Current implementation does not persist its information about clients, tokens and grants, for its purpose its merely
 experimental.
 
 Authorization Process
@@ -19,7 +19,7 @@ The system implements OAuth 2.0 Web Application Flow, as depicted by the figure:
 ![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20Flow.png "Authorization Overview")
 
 Unlike other OAuth 2.0 providers, oAuThor does not provides resources of its own, but a proxy that can be used to
-protect whatever rest resource is put before it.
+protect whatever rest resource is put behind it.
 
 Code description
 ----------------
