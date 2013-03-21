@@ -91,7 +91,6 @@ describe("Authorization Management", function () {
 
         it("should save the grant in the database", function (done) {
             request(options, function (err, response, body) {
-
                 grants.find(options.qs.client_id, function (error, grantList) {
                     expect(error).toBeNull();
                     expect(grantList.length).toEqual(1);
@@ -110,6 +109,18 @@ describe("Authorization Management", function () {
                 expect(parsedUrl.protocol + "//" + parsedUrl.host).toEqual(REDIRECT_URI);
                 expect(parsedUrl.query.code).toMatch(/[0-9A-Fa-f\-]{36}/);
 
+                done();
+            });
+        });
+
+        it("should preserve the state from the original request in the redirection", function (done) {
+            options.qs.state = "InternalState";
+
+            request(options, function (err, response, body) {
+                var
+                    parsedUrl = require("url").parse(response.headers.location, true);
+
+                expect(parsedUrl.query.state).toEqual("InternalState");
                 done();
             });
         });
@@ -172,7 +183,7 @@ describe("Authorization Management", function () {
             });
         });
 
-        it ("should allow requests with the authentication data in a BASIC authorization header", function (done) {
+        it("should allow requests with the authentication data in a BASIC authorization header", function (done) {
             delete options.json.client_secret;
             delete options.json.client_id;
 
