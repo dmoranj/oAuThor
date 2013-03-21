@@ -45,7 +45,8 @@ describe("Authorization Management", function () {
                 method: 'GET',
                 qs: {
                     client_id: CLIENT_ID,
-                    scope: SCOPE
+                    scope: SCOPE,
+                    response_type: "code"
                 },
                 json: {
 
@@ -58,6 +59,24 @@ describe("Authorization Management", function () {
 
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(404);
+                done();
+            });
+        });
+
+        it("should require the response type", function(done) {
+            delete options.qs.response_type;
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(400);
+                done();
+            });
+        });
+
+        it("should require a valid response type 'code' | 'token' ", function(done) {
+            options.qs.response_type = "falseType";
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(401);
                 done();
             });
         });
@@ -97,7 +116,7 @@ describe("Authorization Management", function () {
         beforeEach(function (done) {
             config.tokens.expireTime = (24 * 60 * 60 * 1000);
 
-            grants.add(CLIENT_ID, SCOPE, function (err, result) {
+            grants.add(CLIENT_ID, SCOPE, "code", function (err, result) {
                 options = {
                     url: 'http://localhost:3000/token',
                     method: 'POST',

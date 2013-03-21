@@ -40,7 +40,7 @@ describe("Resource management", function () {
             CLIENT_ID = results[3].id;
             CLIENT_SECRET = results[3].secret;
 
-            grants.add(CLIENT_ID, SCOPE, function (err, grant) {
+            grants.add(CLIENT_ID, SCOPE, "code", function (err, grant) {
                 tokens.get(CLIENT_ID, CLIENT_SECRET, SCOPE, grant.code, function (error, token) {
                     TOKEN = token.token;
                     done();
