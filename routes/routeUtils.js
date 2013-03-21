@@ -23,5 +23,10 @@ function render(req, res, index, err, results) {
     }
 }
 
+function extractCredentials(authHeader) {
+    return new Buffer(authHeader.split(" ")[1], 'base64').toString('ascii').split(":");
+}
+
 exports.check = checkParameter;
 exports.render = render;
+exports.extract = extractCredentials;

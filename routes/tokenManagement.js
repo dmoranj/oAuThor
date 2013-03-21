@@ -16,6 +16,15 @@ function checkCreateParameters(req, callback) {
 }
 
 function getToken(req, res) {
+
+    if (req.headers.authorization && req.headers.authorization.match(/Basic .*/)) {
+        var
+            credentials = utils.extract(req.headers.authorization);
+
+        req.body.client_id = credentials[0];
+        req.body.client_secret = credentials[1];
+    }
+
     series([
         apply(checkCreateParameters, req),
         apply(tokens.get, req.body.client_id, req.body.client_secret, req.body.scope, req.body.code)

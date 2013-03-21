@@ -110,6 +110,11 @@ describe("Authorization Management", function () {
             });
         });
 
+        afterEach(function (done) {
+            delete options.headers;
+            done();
+        });
+
         it("should reject requests without a valid code", function (done) {
             options.json.code = "Faked Code";
 
@@ -142,6 +147,20 @@ describe("Authorization Management", function () {
 
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(401);
+                done();
+            });
+        });
+
+        it ("should allow requests with the authentication data in a BASIC authorization header", function (done) {
+            delete options.json.client_secret;
+            delete options.json.client_id;
+
+            options.headers = {
+                Authorization: 'Basic ' + new Buffer(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64')
+            }
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(200);
                 done();
             });
         });
