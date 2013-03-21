@@ -68,7 +68,7 @@ describe("Client creation", function () {
         });
 
 
-        it("should return a clientId and a clientSecret", function (done) {
+        it("should return a clientId and a client_secret", function (done) {
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(200);
                 expect(body.id).toMatch(/[0-9A-Fa-f\-]{36}/);

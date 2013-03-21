@@ -44,14 +44,14 @@ describe("Authorization Management", function () {
                 url: 'http://localhost:3000/grant',
                 method: 'POST',
                 json: {
-                    clientId: CLIENT_ID,
+                    client_id: CLIENT_ID,
                     scope: SCOPE
                 }
             };
         });
 
         it("should reject requests if the client does not exist", function (done) {
-            options.json.clientId = "falseApp";
+            options.json.client_id = "falseApp";
 
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(404);
@@ -72,7 +72,7 @@ describe("Authorization Management", function () {
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(200);
 
-                grants.find(options.json.clientId, function (error, grantList) {
+                grants.find(options.json.client_id, function (error, grantList) {
                     expect(error).toBeNull();
                     expect(grantList.length).toEqual(1);
                     done();
@@ -99,10 +99,10 @@ describe("Authorization Management", function () {
                     url: 'http://localhost:3000/token',
                     method: 'GET',
                     json: {
-                        clientId: CLIENT_ID,
+                        client_id: CLIENT_ID,
                         scope: SCOPE,
                         code: result.code,
-                        clientSecret: CLIENT_SECRET
+                        client_secret: CLIENT_SECRET
                     }
                 };
 
@@ -128,8 +128,8 @@ describe("Authorization Management", function () {
             });
         });
 
-        it("should reject requests if the clientId does not match the one associated to the token", function (done) {
-            options.json.clientId = FAKED_CLIENT_ID;
+        it("should reject requests if the client_id does not match the one associated to the token", function (done) {
+            options.json.client_id = FAKED_CLIENT_ID;
 
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(401);
@@ -137,8 +137,8 @@ describe("Authorization Management", function () {
             });
         });
 
-        it("should reject requests if the clientSecret does not correspond to that clientId", function (done) {
-            options.json.clientSecret = "Bad secret";
+        it("should reject requests if the client_secret does not correspond to that client_id", function (done) {
+            options.json.client_secret = "Bad secret";
 
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(401);

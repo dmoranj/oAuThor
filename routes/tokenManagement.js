@@ -11,14 +11,14 @@ function checkCreateParameters(req, callback) {
     series([
         utils.check("code", "Authorization code is missing", req),
         utils.check("scope", "The authorization scope is missing", req),
-        utils.check("clientId", "The client ID is missing", req)
+        utils.check("client_id", "The client ID is missing", req)
     ], callback);
 }
 
 function getToken(req, res) {
     series([
         apply(checkCreateParameters, req),
-        apply(tokens.get, req.body.clientId, req.body.clientSecret, req.body.scope, req.body.code)
+        apply(tokens.get, req.body.client_id, req.body.client_secret, req.body.scope, req.body.code)
     ], apply(utils.render, req, res, 1));
 }
 
