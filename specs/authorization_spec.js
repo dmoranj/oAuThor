@@ -48,9 +48,8 @@ describe("Authorization Management", function () {
                     scope: SCOPE,
                     response_type: "code"
                 },
-                json: {
-
-                }
+                json: {},
+                followRedirect: false
             };
         });
 
@@ -92,7 +91,6 @@ describe("Authorization Management", function () {
 
         it("should save the grant in the database", function (done) {
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(200);
 
                 grants.find(options.qs.client_id, function (error, grantList) {
                     expect(error).toBeNull();
@@ -102,10 +100,15 @@ describe("Authorization Management", function () {
             });
         });
 
-        it("should return the redirection URI for the specified client, and the access code", function (done) {
+        it("should redirect the client to the client Redirection URI with the access code", function (done) {
             request(options, function (err, response, body) {
-                expect(body.redirectUri).toEqual(REDIRECT_URI);
-                expect(body.code).toMatch(/[0-9A-Fa-f\-]{36}/);
+                expect(response.statusCode).toEqual(302);
+                expect(response.headers.location).toBeDefined();
+                var
+                    parsedUrl = require("url").parse(response.headers.location, true);
+
+                expect(parsedUrl.protocol + "//" + parsedUrl.host).toEqual(REDIRECT_URI);
+                expect(parsedUrl.query.code).toMatch(/[0-9A-Fa-f\-]{36}/);
 
                 done();
             });
@@ -125,7 +128,8 @@ describe("Authorization Management", function () {
                         scope: SCOPE,
                         code: result.code,
                         client_secret: CLIENT_SECRET
-                    }
+                    },
+                    followRedirect: false
                 };
 
                 done();

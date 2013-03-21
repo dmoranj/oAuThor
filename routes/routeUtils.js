@@ -23,11 +23,36 @@ function checkBody(param, message, req) {
     return checkParameter(param, message, req.body);
 }
 
-function render(req, res, index, err, results) {
+function encodeQueryString(data) {
+    var
+        query = "?";
+
+    for (var i in data) {
+        query+= i + "=" + data[i] + "&";
+    }
+
+    return query;
+}
+
+function render(req, res, index, type, err, results) {
     if (err) {
         res.send(err.code, err.message);
     } else {
-        res.json(200, results[index]);
+        if (type == "redirection") {
+            var
+                uri = results[index].redirectUri;
+
+            delete results[index].redirectUri;
+
+            res.redirect(302, uri + encodeQueryString(results[index]));
+        } else if (type == "ok") {
+            res.json(200, results[index]);
+        } else {
+            var error = {
+                code: 500,
+                message: "Internal error: unexpected render type"
+            }
+        }
     }
 }
 

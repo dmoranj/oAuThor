@@ -20,7 +20,7 @@ function createGrant(req, res) {
     series([
         apply(checkCreateParameters, req),
         apply(grants.add, req.query.client_id, req.query.scope, req.query.response_type)
-    ], apply(utils.render, req, res, 1));
+    ], apply(utils.render, req, res, 1, "redirection"));
 }
 
 exports.create = createGrant;

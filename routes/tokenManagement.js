@@ -28,7 +28,7 @@ function getToken(req, res) {
     series([
         apply(checkCreateParameters, req),
         apply(tokens.get, req.body.client_id, req.body.client_secret, req.body.scope, req.body.code)
-    ], apply(utils.render, req, res, 1));
+    ], apply(utils.render, req, res, 1, "ok"));
 }
 
 exports.get = getToken;
