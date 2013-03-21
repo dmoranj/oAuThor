@@ -19,6 +19,7 @@ var
     CLIENT_SECRET,
     FAKED_CLIENT_ID,
     TOKEN,
+    FAKED_TOKEN = "alsdfoiajs9eufpasd9i",
     options,
     server,
     mockRes,
@@ -69,9 +70,27 @@ describe("Resource management", function () {
             });
         });
 
-        it("should reject requests without a valid token");
+        it("should reject requests without a token", function (done) {
+            delete options.headers.Authorization;
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(401);
+                done();
+            });
+        });
+
+        it("should reject requests without a valid token", function (done) {
+            options.headers.Authorization = "Bearer " + FAKED_TOKEN;
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(401);
+                done();
+            });
+        });
 
         it("should reject requests with a token without enough scope");
+
+        it("should reject requests with an expired token");
     });
 
     afterEach(function (done) {
