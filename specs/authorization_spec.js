@@ -208,7 +208,14 @@ describe("Authorization Management", function () {
             });
         });
 
-        it("should return both pragma and cache-control headers with no-cache value");
+        it("should return both pragma and cache-control headers with no-cache value", function (done) {
+            request(options, function (err, response, body) {
+                expect(response.headers['cache-control']).toEqual("no-store");
+                expect(response.headers.pragma).toEqual("no-cache");
+
+                done();
+            });
+        });
     });
 
     describe("When a refresh request arrives", function () {

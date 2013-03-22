@@ -15,6 +15,13 @@ function checkCreateParameters(req, callback) {
     ], callback);
 }
 
+function addHeaders(res, callback) {
+    res.set('cache-control', 'no-store');
+    res.set('pragma', 'no-cache');
+
+    callback(null);
+}
+
 function getToken(req, res) {
 
     if (req.headers.authorization && req.headers.authorization.match(/Basic .*/)) {
@@ -27,7 +34,8 @@ function getToken(req, res) {
 
     series([
         apply(checkCreateParameters, req),
-        apply(tokens.get, req.body.client_id, req.body.client_secret, req.body.scope, req.body.code)
+        apply(tokens.get, req.body.client_id, req.body.client_secret, req.body.scope, req.body.code),
+        apply(addHeaders, res)
     ], apply(utils.render, req, res, 1, "ok"));
 }
 
