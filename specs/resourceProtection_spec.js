@@ -52,7 +52,7 @@ describe("Resource management", function () {
     describe("When a request for a protected resource arrives", function () {
         beforeEach(function (done) {
             options = {
-                url: 'http://localhost:' + config.resource.proxy.port + "/secure",
+                url: 'https://localhost:' + config.resource.proxy.port + "/secure",
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + TOKEN

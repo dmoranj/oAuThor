@@ -6,6 +6,11 @@ config.endpoint = {
     port: "3000"
 };
 
+config.ssl = {
+    key: "./ssl/privatekey.pem",
+    certificate: "./ssl/certificate.pem"
+};
+
 config.tokens = {
     expireTime: 48 * 60 * 60 * 1000
 };

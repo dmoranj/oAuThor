@@ -4,9 +4,15 @@ var express = require('express'),
     clientRoutes = require('./routes/clientManagement'),
     grantRoutes = require('./routes/grantManagement'),
     tokenRoutes = require('./routes/tokenManagement'),
-    http = require('http'),
+    https = require('https'),
     path = require('path'),
+    fs = require('fs'),
     config = require('./config');
+
+var options = {
+    key: fs.readFileSync(config.ssl.key),
+    cert: fs.readFileSync(config.ssl.certificate)
+};
 
 function defineRoutes(app) {
     app.post('/register', clientRoutes.create);
@@ -35,7 +41,7 @@ function create(callback) {
 
     defineRoutes(app);
 
-    server = http.createServer(app).listen(app.get('port'), function () {
+    server = https.createServer(options, app).listen(app.get('port'), function () {
         console.log('Express server listening on port ' + app.get('port'));
     });
 
