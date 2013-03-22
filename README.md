@@ -21,8 +21,8 @@ The system implements OAuth 2.0 Web Application Flow, as depicted by the figure:
 Unlike other OAuth 2.0 providers, oAuThor does not provides resources of its own, but a proxy that can be used to
 protect whatever rest resource is put behind it.
 
-Code description
-----------------
+Implementation details
+----------------------
 The system is implemented as a single Node.JS application, using [Express](http://expressjs.com/) for REST 
 interaction and [node-http-proxy](https://github.com/nodejitsu/node-http-proxy) for the authorization proxy. BDD tests
 are executed with [jasmine-node](https://github.com/mhevery/jasmine-node), and cover the functionality end to end.
