@@ -52,7 +52,7 @@ describe("Resource management", function () {
     describe("When a request for a protected resource arrives", function () {
         beforeEach(function (done) {
             options = {
-                url: 'http://localhost:' + config.resource.proxy.port + "/secure",
+                url: 'https://localhost:' + config.resource.proxy.port + "/secure",
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + TOKEN
@@ -87,6 +87,17 @@ describe("Resource management", function () {
                 done();
             });
         });
+
+        it("should return the authorization challenge header when unauthenticated", function(done) {
+            delete options.headers.Authorization;
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(401);
+                expect(response.headers['www-authenticate']).toBeDefined();
+                expect(response.headers['www-authenticate']).toMatch(/Bearer realm=.*/);
+                done();
+            });
+        })
 
         it("should reject requests with a token without enough scope");
 

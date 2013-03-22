@@ -41,7 +41,7 @@ describe("Authorization Management", function () {
     describe("When a grant request arrives", function () {
         beforeEach(function () {
             options = {
-                url: 'http://localhost:3000/grant',
+                url: 'https://localhost:' + config.endpoint.port + '/grant',
                 method: 'GET',
                 qs: {
                     client_id: CLIENT_ID,
@@ -132,7 +132,7 @@ describe("Authorization Management", function () {
 
             grants.add(CLIENT_ID, SCOPE, "code", function (err, result) {
                 options = {
-                    url: 'http://localhost:3000/token',
+                    url: 'https://localhost:' + config.endpoint.port + '/token',
                     method: 'POST',
                     json: {
                         client_id: CLIENT_ID,

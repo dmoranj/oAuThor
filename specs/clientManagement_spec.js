@@ -3,6 +3,7 @@
 var apps = require("../app"),
     request = require("request"),
     clients = require("../lib/clientService"),
+    config = require('../config'),
     server;
 
 
@@ -15,7 +16,7 @@ describe("Client creation", function () {
         beforeEach(function (done) {
             apps.create(function (error, createdServer) {
                 options = {
-                    url: 'http://localhost:3000/register',
+                    url: 'https://localhost:' + config.endpoint.port + '/register',
                     method: 'POST',
                     json: {
                         appName: 'testApp',
