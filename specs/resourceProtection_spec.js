@@ -42,7 +42,7 @@ describe("Resource management", function () {
 
             grants.add(CLIENT_ID, SCOPE, "code", function (err, grant) {
                 tokens.get(CLIENT_ID, CLIENT_SECRET, SCOPE, grant.code, function (error, token) {
-                    TOKEN = token.token;
+                    TOKEN = token.access_token;
                     done();
                 });
             });
@@ -90,7 +90,7 @@ describe("Resource management", function () {
 
         it("should reject requests with a token without enough scope");
 
-        it("should reject requests with an expired token");
+        it("should reject requests with an outdated");
     });
 
     afterEach(function (done) {

@@ -200,11 +200,15 @@ describe("Authorization Management", function () {
         it("should return an authorization token and a refresh token when the code is valid", function (done) {
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(200);
-                expect(body.token).toMatch(/[0-9A-Fa-f\-]{36}/);
-                expect(body.refresh).toMatch(/[0-9A-Fa-f\-]{36}/);
+                expect(body.access_token).toMatch(/[0-9A-Fa-f\-]{36}/);
+                expect(body.refresh_token).toMatch(/[0-9A-Fa-f\-]{36}/);
+                expect(body.token_type).toBe("bearer");
+                expect(body.expires_in).toBeDefined();
                 done();
             });
         });
+
+        it("should return both pragma and cache-control headers with no-cache value");
     });
 
     describe("When a refresh request arrives", function () {
