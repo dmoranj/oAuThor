@@ -88,6 +88,17 @@ describe("Resource management", function () {
             });
         });
 
+        it("should return the authorization challenge header when unauthenticated", function(done) {
+            delete options.headers.Authorization;
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(401);
+                expect(response.headers['www-authenticate']).toBeDefined();
+                expect(response.headers['www-authenticate']).toMatch(/Bearer realm=.*/);
+                done();
+            });
+        })
+
         it("should reject requests with a token without enough scope");
 
         it("should reject requests with an expired token");

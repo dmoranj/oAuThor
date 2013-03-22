@@ -18,7 +18,8 @@ config.tokens = {
 config.resource = {
     original: {
         host: "localhost",
-        port: 4000
+        port: 4000,
+        realm: "resourceServer"
     },
     proxy: {
         port: 8000
