@@ -14,7 +14,7 @@ var
     series = async.series,
 
     REDIRECT_URI = "http://redirecturi.com",
-    SCOPE = "/stuff",
+    SCOPE = "/secure",
     CLIENT_ID,
     CLIENT_SECRET,
     FAKED_CLIENT_ID,
@@ -97,9 +97,16 @@ describe("Resource management", function () {
                 expect(response.headers['www-authenticate']).toMatch(/Bearer realm=.*/);
                 done();
             });
-        })
+        });
 
-        it("should reject requests with a token without enough scope");
+        it("should reject requests with a token without enough scope", function (done) {
+            options.url = 'https://localhost:' + config.resource.proxy.port + "/insecure";
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(403);
+                done();
+            });
+        });
 
         it("should reject requests with an outdated");
     });
