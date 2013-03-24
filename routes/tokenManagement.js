@@ -9,7 +9,6 @@ var
 
 function checkCreateParameters(req, callback) {
     series([
-        utils.checkBody("code", "Authorization code is missing", req),
         utils.checkBody("grant_type", "Grant type is missing", req),
         utils.checkBody("scope", "The authorization scope is missing", req),
         utils.checkBody("client_id", "The client ID is missing", req)
@@ -23,11 +22,13 @@ function addHeaders(res, callback) {
     callback(null);
 }
 
-function execTokenFunction(clientid, clientSecret, scope, code, type) {
-    if (type == "authorization_code") {
+function execTokenFunction(clientid, clientSecret, scope, code, refresh, type) {
+    if (type == "authorization_code" && code) {
+        console.log("TYPE: Authorization code");
         return apply(tokens.get, clientid, clientSecret, scope, code);
-    } else if (type == "") {
-        return apply(tokens.refresh, clientid, clientSecret, scope, code);
+    } else if (type == "refresh_token" && refresh) {
+        console.log("TYPE: Refresh token");
+        return apply(tokens.refresh, clientid, clientSecret, scope, refresh);
     } else {
         return function (callback) {
             var err = {
@@ -52,9 +53,18 @@ function extractCredentials(req, res) {
 
 function getToken(req, res) {
     extractCredentials(req, res);
+
+    var
+        tokenFunc = execTokenFunction(req.body.client_id,
+            req.body.client_secret,
+            req.body.scope,
+            req.body.code,
+            req.body.refresh_token,
+            req.body.grant_type);
+
     series([
         apply(checkCreateParameters, req),
-        execTokenFunction(req.body.client_id, req.body.client_secret, req.body.scope, req.body.code, req.body.grant_type),
+        tokenFunc,
         apply(addHeaders, res)
     ], apply(utils.render, req, res, 1, "ok"));
 }

@@ -240,8 +240,10 @@ describe("Authorization Management", function () {
                         method: 'POST',
                         json: {
                             scope: SCOPE,
+                            client_id: CLIENT_ID,
                             grant_type: "refresh_token",
-                            refresh_token: token.refresh_token
+                            refresh_token: token.refresh_token,
+                            client_secret: CLIENT_SECRET
                         },
                         followRedirect: false
                     };
@@ -250,7 +252,7 @@ describe("Authorization Management", function () {
                 });
             });
         });
-/*
+
         it("should return a new authorization token when the refresh token is valid", function (done) {
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(200);
@@ -260,10 +262,10 @@ describe("Authorization Management", function () {
                 expect(body.expires_in).toBeDefined();
                 done();
             });
-        });*/
+        });
 
-        it("should reject already used refresh tokens");
-        it("should reject invalid refresh tokens");
+        xit("should reject already used refresh tokens");
+        xit("should reject invalid refresh tokens");
 
     });
 });
