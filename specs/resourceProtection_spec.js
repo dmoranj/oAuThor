@@ -108,7 +108,7 @@ describe("Resource management", function () {
             });
         });
 
-        it("should reject requests with an outdated");
+        it("should reject requests with an outdated token");
     });
 
     afterEach(function (done) {

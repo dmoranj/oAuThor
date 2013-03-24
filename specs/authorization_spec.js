@@ -4,6 +4,7 @@ var apps = require("../app"),
     request = require("request"),
     clients = require("../lib/clientService"),
     grants = require("../lib/grantService"),
+    tokens = require("../lib/tokenService"),
     config = require("../config"),
     async = require("async"),
     REDIRECT_URI = "http://redirecturi.com",
@@ -138,7 +139,8 @@ describe("Authorization Management", function () {
                         client_id: CLIENT_ID,
                         scope: SCOPE,
                         code: result.code,
-                        client_secret: CLIENT_SECRET
+                        client_secret: CLIENT_SECRET,
+                        grant_type: "authorization_code"
                     },
                     followRedirect: false
                 };
@@ -158,6 +160,15 @@ describe("Authorization Management", function () {
 
         it("should reject requests with an expired code", function (done) {
             config.tokens.expireTime = -(60 * 60 * 1000);
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(401);
+                done();
+            });
+        });
+
+        it("should reject requests witouht an appropriate type", function (done) {
+            options.json.grant_type = "Faked type";
 
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(401);
@@ -189,7 +200,7 @@ describe("Authorization Management", function () {
 
             options.headers = {
                 Authorization: 'Basic ' + new Buffer(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64')
-            }
+            };
 
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(200);
@@ -219,7 +230,40 @@ describe("Authorization Management", function () {
     });
 
     describe("When a refresh request arrives", function () {
+        beforeEach(function (done) {
+            config.tokens.expireTime = (24 * 60 * 60 * 1000);
+
+            grants.add(CLIENT_ID, SCOPE, "code", function (err, result) {
+                tokens.get(CLIENT_ID, CLIENT_SECRET, SCOPE, result.code, function (error, token) {
+                    options = {
+                        url: 'https://localhost:' + config.endpoint.port + '/token',
+                        method: 'POST',
+                        json: {
+                            scope: SCOPE,
+                            grant_type: "refresh_token",
+                            refresh_token: token.refresh_token
+                        },
+                        followRedirect: false
+                    };
+
+                    done();
+                });
+            });
+        });
+/*
+        it("should return a new authorization token when the refresh token is valid", function (done) {
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(200);
+                expect(body.access_token).toMatch(/[0-9A-Fa-f\-]{36}/);
+                expect(body.refresh_token).toMatch(/[0-9A-Fa-f\-]{36}/);
+                expect(body.token_type).toBe("bearer");
+                expect(body.expires_in).toBeDefined();
+                done();
+            });
+        });*/
+
+        it("should reject already used refresh tokens");
         it("should reject invalid refresh tokens");
-        it("should return a new authorization token when the refresh token is valid");
+
     });
 });
