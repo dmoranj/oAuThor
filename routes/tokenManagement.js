@@ -40,8 +40,7 @@ function execTokenFunction(clientid, clientSecret, scope, code, type) {
     }
 }
 
-function getToken(req, res) {
-
+function extractCredentials(req, res) {
     if (req.headers.authorization && req.headers.authorization.match(/Basic .*/)) {
         var
             credentials = utils.extract(req.headers.authorization);
@@ -49,7 +48,10 @@ function getToken(req, res) {
         req.body.client_id = credentials[0];
         req.body.client_secret = credentials[1];
     }
+}
 
+function getToken(req, res) {
+    extractCredentials(req, res);
     series([
         apply(checkCreateParameters, req),
         execTokenFunction(req.body.client_id, req.body.client_secret, req.body.scope, req.body.code, req.body.grant_type),
