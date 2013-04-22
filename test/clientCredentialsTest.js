@@ -1,6 +1,8 @@
 "use strict";
 
 var apps = require("../app"),
+    mockResource = require("./resourceMock"),
+    proxies = require("../" + process.env.LIB_ROOT + "/proxyService"),
     request = require("request"),
     clients = require("../" + process.env.LIB_ROOT + "/clientService"),
     grants = require("../" + process.env.LIB_ROOT + "/grantService"),
@@ -12,58 +14,83 @@ var apps = require("../app"),
     SCOPE = "/stuff",
     CLIENT_ID,
     CLIENT_SECRET,
+    RESOURCE_OWNER_REGEX = /api\/(.*)\/.*/,
+    SCOPE_REGEX = /api\/.*(\/.*)/,
     code,
     server,
-    authorization;
+    authorization,
+    mockRes,
+    proxy;
 
 describe("Client Credentials Grant", function () {
-    var options;
+    var optionsAuthorize,
+        optionsAccess;
 
     beforeEach(function (done) {
-        apps.create(function (error, createdServer) {
-            clients.create(REDIRECT_URI, "testApp", "confidential", function (error, result) {
-                config.tokens.expireTime = (24 * 60 * 60 * 1000);
-                CLIENT_ID = result.id;
-                CLIENT_SECRET = result.secret;
-                authorization = 'Basic ' + new Buffer(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64');
+        async.series([
+            mockResource.createMockApp,
+            async.apply(proxies.create, RESOURCE_OWNER_REGEX, SCOPE_REGEX),
+            apps.create,
+            async.apply(clients.create, REDIRECT_URI, "testApp", "confidential")
+        ], function (err, results) {
+            config.tokens.expireTime = (24 * 60 * 60 * 1000);
+            mockRes = results[0];
+            proxy = results[1];
+            server = results[2];
+            CLIENT_ID = results[3].id;
+            CLIENT_SECRET = results[3].secret;
+            authorization = 'Basic ' + new Buffer(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64');
 
-                options = {
-                    url: 'https://localhost:' + config.endpoint.port + '/token',
-                    method: 'POST',
-                    json: {
-                        scope: SCOPE,
-                        grant_type: "client_credentials"
-                    },
-                    followRedirect: false,
-                    headers: {
-                        Authorization: authorization
-                    }
-                };
+            optionsAuthorize = {
+                url: 'https://localhost:' + config.endpoint.port + '/token',
+                method: 'POST',
+                json: {
+                    scope: SCOPE,
+                    grant_type: "client_credentials"
+                },
+                followRedirect: false,
+                headers: {
+                    Authorization: authorization
+                }
+            };
 
-                server = createdServer;
-                done();
-            });
+            optionsAccess = {
+                url: 'https://localhost:' + config.resource.proxy.port + "/api/" + CLIENT_ID + "/secure",
+                method: 'GET',
+                headers: {
+                }
+            };
+
+            done();
         });
     });
 
     afterEach(function (done) {
-        apps.close(server, function () {
+        async.series([
+            async.apply(apps.close, server),
+            async.apply(proxies.close, proxy),
+            async.apply(mockResource.close, mockRes)
+        ], function (err, results) {
+            if (err) {
+                console.error("There was an error cleaning testing state");
+            }
+
             done();
         });
     });
 
     describe("When an access token request arrives", function () {
         it("should check that the client is authenticated", function (done) {
-            options.headers = null;
+            optionsAuthorize.headers = null;
 
-            request(options, function (err, response, body) {
+            request(optionsAuthorize, function (err, response, body) {
                 response.statusCode.should.equal(401);
                 done();
             });
         });
 
         it("should grant an access token to access the client's own resources", function (done) {
-            request(options, function (err, response, body) {
+            request(optionsAuthorize, function (err, response, body) {
                 response.statusCode.should.equal(200);
                 body.access_token.should.match(/[0-9A-Fa-f\-]{36}/);
                 should.not.exist(body.refresh_token);
@@ -73,6 +100,25 @@ describe("Client Credentials Grant", function () {
             });
         });
 
-        it("should not allow the client to access other owner's resources");
+        it("should allow the client to access its own resources", function (done) {
+            request(optionsAuthorize, function (err, response, body) {
+                optionsAccess.headers.Authorization = 'Bearer ' + body.access_token;
+                request(optionsAccess, function (err, response, body) {
+                    response.statusCode.should.equal(200);
+                    done();
+                });
+            });
+        });
+
+        it("should not allow the client to access other owner's resources", function (done) {
+            request(optionsAuthorize, function (err, response, body) {
+                optionsAccess.headers.Authorization = 'Bearer ' + body.access_token;
+                optionsAccess.url = 'https://localhost:' + config.resource.proxy.port + "/api/otherClientId/secure";
+                request(optionsAccess, function (err, response, body) {
+                    response.statusCode.should.equal(403);
+                    done();
+                });
+            });
+        });
     });
 });
