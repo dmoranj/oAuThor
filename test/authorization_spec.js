@@ -5,6 +5,7 @@ var apps = require("../app"),
     clients = require("../lib/clientService"),
     grants = require("../lib/grantService"),
     tokens = require("../lib/tokenService"),
+    should = require('should'),
     config = require("../config"),
     async = require("async"),
     REDIRECT_URI = "http://redirecturi.com",
@@ -62,25 +63,25 @@ describe("Authorization Code Grant", function () {
             options.json.client_id = "falseApp";
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(404);
+                response.statusCode.should.equal(404);
                 done();
             });
         });
 
-        it("should require the response type", function(done) {
+        it("should require the response type", function (done) {
             delete options.json.response_type;
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(400);
+                response.statusCode.should.equal(400);
                 done();
             });
         });
 
-        it("should require a valid response type 'code' | 'token' ", function(done) {
+        it("should require a valid response type 'code' | 'token' ", function (done) {
             options.json.response_type = "falseType";
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(401);
+                response.statusCode.should.equal(401);
                 done();
             });
         });
@@ -89,7 +90,7 @@ describe("Authorization Code Grant", function () {
             delete options.json.scope;
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(400);
+                response.statusCode.should.equal(400);
                 done();
             });
         });
@@ -98,7 +99,7 @@ describe("Authorization Code Grant", function () {
             delete options.json.resource_owner;
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(400);
+                response.statusCode.should.equal(400);
                 done();
             });
         });
@@ -106,8 +107,8 @@ describe("Authorization Code Grant", function () {
         it("should save the grant in the database", function (done) {
             request(options, function (err, response, body) {
                 grants.find(options.json.client_id, function (error, grantList) {
-                    expect(error).toBeNull();
-                    expect(grantList.length).toEqual(1);
+                    should.not.exist(error);
+                    grantList.length.should.equal(1);
                     done();
                 });
             });
@@ -115,13 +116,13 @@ describe("Authorization Code Grant", function () {
 
         it("should redirect the client to the client Redirection URI with the access code", function (done) {
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(302);
-                expect(response.headers.location).toBeDefined();
+                response.statusCode.should.equal(302);
+                should.exist(response.headers.location);
 
                 var parsedUrl = require("url").parse(response.headers.location, true);
 
-                expect(parsedUrl.protocol + "//" + parsedUrl.host).toEqual(REDIRECT_URI);
-                expect(parsedUrl.query.code).toMatch(/[0-9A-Fa-f\-]{36}/);
+                (parsedUrl.protocol + "//" + parsedUrl.host).should.equal(REDIRECT_URI);
+                parsedUrl.query.code.should.match(/[0-9A-Fa-f\-]{36}/);
 
                 done();
             });
@@ -134,7 +135,7 @@ describe("Authorization Code Grant", function () {
                 var
                     parsedUrl = require("url").parse(response.headers.location, true);
 
-                expect(parsedUrl.query.state).toEqual("InternalState");
+                parsedUrl.query.state.should.equal("InternalState");
                 done();
             });
         });
@@ -171,7 +172,7 @@ describe("Authorization Code Grant", function () {
             options.headers = null;
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(401);
+                response.statusCode.should.equal(401);
                 done();
             });
         });
@@ -180,7 +181,7 @@ describe("Authorization Code Grant", function () {
             options.json.code = "Faked Code";
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(401);
+                response.statusCode.should.equal(401);
                 done();
             });
         });
@@ -189,7 +190,7 @@ describe("Authorization Code Grant", function () {
             config.tokens.expireTime = -(60 * 60 * 1000);
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(401);
+                response.statusCode.should.equal(401);
                 done();
             });
         });
@@ -198,7 +199,7 @@ describe("Authorization Code Grant", function () {
             options.json.grant_type = "Faked type";
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(401);
+                response.statusCode.should.equal(401);
                 done();
             });
         });
@@ -208,26 +209,26 @@ describe("Authorization Code Grant", function () {
             options.headers.authorization = 'Basic ' + new Buffer(FAKED_CLIENT_ID + ':' + FAKED_SECRET).toString('base64');
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(401);
+                response.statusCode.should.equal(401);
                 done();
             });
         });
 
         it("should return an access token and a refresh token when the code is valid", function (done) {
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(200);
-                expect(body.access_token).toMatch(/[0-9A-Fa-f\-]{36}/);
-                expect(body.refresh_token).toMatch(/[0-9A-Fa-f\-]{36}/);
-                expect(body.token_type).toBe("bearer");
-                expect(body.expires_in).toBeDefined();
+                response.statusCode.should.equal(200);
+                body.access_token.should.match(/[0-9A-Fa-f\-]{36}/);
+                body.refresh_token.should.match(/[0-9A-Fa-f\-]{36}/);
+                body.token_type.should.equal("bearer");
+                should.exist(body.expires_in);
                 done();
             });
         });
 
         it("should return both pragma and cache-control headers with no-cache value", function (done) {
             request(options, function (err, response, body) {
-                expect(response.headers['cache-control']).toEqual("no-store");
-                expect(response.headers.pragma).toEqual("no-cache");
+                response.headers['cache-control'].should.equal("no-store");
+                response.headers.pragma.should.equal("no-cache");
 
                 done();
             });
@@ -265,11 +266,12 @@ describe("Authorization Code Grant", function () {
 
         it("should return a new authorization token when the refresh token is valid", function (done) {
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(200);
-                expect(body.access_token).toMatch(/[0-9A-Fa-f\-]{36}/);
-                expect(body.refresh_token).toMatch(/[0-9A-Fa-f\-]{36}/);
-                expect(body.token_type).toBe("bearer");
-                expect(body.expires_in).toBeDefined();
+                response.statusCode.should.equal(200);
+                body.access_token.should.match(/[0-9A-Fa-f\-]{36}/);
+                body.refresh_token.should.match(/[0-9A-Fa-f\-]{36}/);
+                body.token_type.should.equal("bearer");
+
+                should.exist(body.expires_in);
                 done();
             });
         });

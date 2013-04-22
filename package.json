@@ -12,5 +12,15 @@
     "http-proxy": "*",
     "async": "0.2.5",
     "request": "*"
+  },
+  "devDependencies": {
+    "mocha-istanbul": "*",
+    "should" : "*",
+    "grunt": "*",
+    "grunt-contrib-jshint": "*",
+    "mocha": "*",
+    "istanbul": "*",
+    "sinon": "*",
+    "dox-foundation": "*"
   }
 }

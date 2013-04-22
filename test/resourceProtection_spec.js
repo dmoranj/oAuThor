@@ -9,6 +9,7 @@ var
     tokens = require("../lib/tokenService"),
     config = require("../config"),
     request = require("request"),
+    should = require('should'),
     async = require('async'),
     apply = async.apply,
     series = async.series,
@@ -69,7 +70,7 @@ describe("Resource management", function () {
 
         it("should accept requests with the valid token", function (done) {
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(200);
+                response.statusCode.should.equal(200);
                 done();
             });
         });
@@ -78,7 +79,7 @@ describe("Resource management", function () {
             delete options.headers.Authorization;
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(401);
+                response.statusCode.should.equal(401);
                 done();
             });
         });
@@ -87,18 +88,18 @@ describe("Resource management", function () {
             options.headers.Authorization = "Bearer " + FAKED_TOKEN;
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(401);
+                response.statusCode.should.equal(401);
                 done();
             });
         });
 
-        it("should return the authorization challenge header when unauthenticated", function(done) {
+        it("should return the authorization challenge header when unauthenticated", function (done) {
             delete options.headers.Authorization;
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(401);
-                expect(response.headers['www-authenticate']).toBeDefined();
-                expect(response.headers['www-authenticate']).toMatch(/Bearer realm=.*/);
+                response.statusCode.should.equal(401);
+                should.exist(response.headers['www-authenticate']);
+                (response.headers['www-authenticate']).should.match(/Bearer realm=.*/);
                 done();
             });
         });
@@ -107,7 +108,7 @@ describe("Resource management", function () {
             options.url = 'https://localhost:' + config.resource.proxy.port +  "/api/" + RESOURCE_OWNER + "/insecure";
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(403);
+                response.statusCode.should.equal(403);
                 done();
             });
         });
@@ -116,7 +117,7 @@ describe("Resource management", function () {
             options.url = 'https://localhost:' + config.resource.proxy.port +  "/api/AnotherResourceOwner/secure";
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(403);
+                response.statusCode.should.equal(403);
                 done();
             });
         });

@@ -4,6 +4,7 @@ var apps = require("../app"),
     request = require("request"),
     clients = require("../lib/clientService"),
     config = require('../config'),
+    should = require('should'),
     server;
 
 
@@ -39,7 +40,7 @@ describe("Client creation", function () {
         it("should fail if the redirectUri is missing", function (done) {
             delete options.json.redirectUri;
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(400);
+                response.statusCode.should.equal(400);
                 done();
             });
         });
@@ -47,7 +48,7 @@ describe("Client creation", function () {
         it("should fail if the app name is missing", function (done) {
             delete options.json.appName;
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(400);
+                response.statusCode.should.equal(400);
                 done();
             });
         });
@@ -55,7 +56,7 @@ describe("Client creation", function () {
         it("should fail if the type is not present", function (done) {
             delete options.json.type;
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(400);
+                response.statusCode.should.equal(400);
                 done();
             });
         });
@@ -63,7 +64,7 @@ describe("Client creation", function () {
         it("should fail if the type is not right", function (done) {
             options.json.type = "falsifiedType";
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(400);
+                response.statusCode.should.equal(400);
                 done();
             });
         });
@@ -71,16 +72,16 @@ describe("Client creation", function () {
 
         it("should return a clientId and a client_secret", function (done) {
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(200);
-                expect(body.id).toMatch(/[0-9A-Fa-f\-]{36}/);
-                expect(body.secret).toMatch(/[0-9A-Fa-f\-]{36}/);
+                response.statusCode.should.equal(200);
+                body.id.should.match(/[0-9A-Fa-f\-]{36}/);
+                body.secret.should.match(/[0-9A-Fa-f\-]{36}/);
                 done();
             });
         });
 
         it("a client in the db is created", function (done) {
             clients.list(function (err, list) {
-                expect(err).toBeNull();
+                should.not.exist(err);
 
                 var
                     found = false,
@@ -92,7 +93,7 @@ describe("Client creation", function () {
                     }
                 }
 
-                expect(found).toBeTruthy();
+                should.exist(found);
                 done();
             });
         });

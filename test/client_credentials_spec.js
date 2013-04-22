@@ -6,6 +6,7 @@ var apps = require("../app"),
     grants = require("../lib/grantService"),
     tokens = require("../lib/tokenService"),
     config = require("../config"),
+    should = require('should'),
     async = require("async"),
     REDIRECT_URI = "http://redirecturi.com",
     SCOPE = "/stuff",
@@ -56,18 +57,18 @@ describe("Client Credentials Grant", function () {
             options.headers = null;
 
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(401);
+                response.statusCode.should.equal(401);
                 done();
             });
         });
 
         it("should grant an access token to access the client's own resources", function (done) {
             request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(200);
-                expect(body.access_token).toMatch(/[0-9A-Fa-f\-]{36}/);
-                expect(body.refresh_token).toBeUndefined();
-                expect(body.token_type).toBe("bearer");
-                expect(body.expires_in).toBeDefined();
+                response.statusCode.should.equal(200);
+                body.access_token.should.match(/[0-9A-Fa-f\-]{36}/);
+                should.not.exist(body.refresh_token);
+                body.token_type.should.equal("bearer");
+                should.exist(body.expires_in);
                 done();
             });
         });
