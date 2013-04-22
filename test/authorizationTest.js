@@ -59,6 +59,8 @@ describe("Authorization Code Grant", function () {
             };
         });
 
+        it("should authenticate the resource owner");
+
         it("should reject requests if the client does not exist", function (done) {
             options.json.client_id = "falseApp";
 

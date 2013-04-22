@@ -29,7 +29,6 @@ function createMockApp(callback) {
 
     app.configure(function () {
         app.set('port', config.resource.original.port);
-        app.use(express.logger('dev'));
         app.use(express.methodOverride());
         app.use(app.router);
     });
