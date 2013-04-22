@@ -14,12 +14,17 @@ var
     series = async.series,
 
     REDIRECT_URI = "http://redirecturi.com",
-    SCOPE = "/secure",
+    SCOPE = "/secure/*",
     CLIENT_ID,
     CLIENT_SECRET,
     FAKED_CLIENT_ID,
     TOKEN,
     FAKED_TOKEN = "alsdfoiajs9eufpasd9i",
+    RESOURCE_OWNER = "TestResourceOwner",
+
+    RESOURCE_OWNER_REGEX = /api\/(.*)\/.*/,
+    SCOPE_REGEX = /api\/.*(\/.*)/,
+
     options,
     server,
     mockRes,
@@ -30,7 +35,7 @@ describe("Resource management", function () {
     beforeEach(function (done) {
         series([
             mockResource.createMockApp,
-            proxies.create,
+            apply(proxies.create, RESOURCE_OWNER_REGEX, SCOPE_REGEX),
             apps.create,
             apply(clients.create, REDIRECT_URI, "testApp", "confidential")
         ], function (err, results) {
@@ -40,7 +45,7 @@ describe("Resource management", function () {
             CLIENT_ID = results[3].id;
             CLIENT_SECRET = results[3].secret;
 
-            grants.add(CLIENT_ID, SCOPE, "code", function (err, grant) {
+            grants.add(CLIENT_ID, SCOPE, "code", RESOURCE_OWNER, function (err, grant) {
                 tokens.get(CLIENT_ID, SCOPE, grant.code, function (error, token) {
                     TOKEN = token.access_token;
                     done();
@@ -52,7 +57,7 @@ describe("Resource management", function () {
     describe("When a request for a protected resource arrives", function () {
         beforeEach(function (done) {
             options = {
-                url: 'https://localhost:' + config.resource.proxy.port + "/secure",
+                url: 'https://localhost:' + config.resource.proxy.port + "/api/" + RESOURCE_OWNER + "/secure",
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + TOKEN
@@ -65,7 +70,6 @@ describe("Resource management", function () {
         it("should accept requests with the valid token", function (done) {
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(200);
-                expect(JSON.parse(body).secure).toEqual(true);
                 done();
             });
         });
@@ -100,7 +104,7 @@ describe("Resource management", function () {
         });
 
         it("should reject requests with a token without enough scope", function (done) {
-            options.url = 'https://localhost:' + config.resource.proxy.port + "/insecure";
+            options.url = 'https://localhost:' + config.resource.proxy.port +  "/api/" + RESOURCE_OWNER + "/insecure";
 
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(403);
@@ -109,6 +113,8 @@ describe("Resource management", function () {
         });
 
         it("should reject requests with an outdated token");
+
+        it("should reject request if the owner does not match the one who granted the authorization");
     });
 
     afterEach(function (done) {

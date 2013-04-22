@@ -13,6 +13,7 @@ var apps = require("../app"),
     CLIENT_SECRET,
     FAKED_CLIENT_ID,
     FAKED_SECRET,
+    RESOURCE_OWNER = "TestResourceOwner",
     authorization,
     code,
     options,
@@ -50,7 +51,8 @@ describe("Authorization Code Grant", function () {
                 json: {
                     client_id: CLIENT_ID,
                     scope: SCOPE,
-                    response_type: "code"
+                    response_type: "code",
+                    resource_owner: RESOURCE_OWNER
                 },
                 followRedirect: false
             };
@@ -85,6 +87,15 @@ describe("Authorization Code Grant", function () {
 
         it("should reject requests if they don't have a scope", function (done) {
             delete options.json.scope;
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(400);
+                done();
+            });
+        });
+
+        it("should reject requests if the resource owner is not specified", function (done) {
+            delete options.json.resource_owner;
 
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(400);
@@ -133,7 +144,7 @@ describe("Authorization Code Grant", function () {
         beforeEach(function (done) {
             config.tokens.expireTime = (24 * 60 * 60 * 1000);
 
-            grants.add(CLIENT_ID, SCOPE, "code", function (err, result) {
+            grants.add(CLIENT_ID, SCOPE, "code", RESOURCE_OWNER, function (err, result) {
                 authorization = 'Basic ' + new Buffer(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64');
 
                 options = {
@@ -227,7 +238,7 @@ describe("Authorization Code Grant", function () {
         beforeEach(function (done) {
             config.tokens.expireTime = (24 * 60 * 60 * 1000);
 
-            grants.add(CLIENT_ID, SCOPE, "code", function (err, result) {
+            grants.add(CLIENT_ID, SCOPE, "code", RESOURCE_OWNER, function (err, result) {
                 tokens.get(CLIENT_ID, SCOPE, result.code, function (error, token) {
                     authorization = 'Basic ' + new Buffer(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64');
 
