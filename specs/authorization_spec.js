@@ -157,6 +157,15 @@ describe("Authorization Code Grant", function () {
             });
         });
 
+        it("should reject unauthenticated requests", function (done) {
+            options.headers = null;
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(401);
+                done();
+            });
+        });
+
         it("should reject requests without a valid code", function (done) {
             options.json.code = "Faked Code";
 
