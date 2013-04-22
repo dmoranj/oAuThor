@@ -2,7 +2,7 @@
 
 var apps = require("../app"),
     request = require("request"),
-    clients = require("../lib/clientService"),
+    clients = require("../" + process.env.LIB_ROOT + "/clientService"),
     config = require('../config'),
     should = require('should'),
     server;

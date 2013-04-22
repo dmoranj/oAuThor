@@ -2,9 +2,9 @@
 
 var apps = require("../app"),
     request = require("request"),
-    clients = require("../lib/clientService"),
-    grants = require("../lib/grantService"),
-    tokens = require("../lib/tokenService"),
+    clients = require("../" + process.env.LIB_ROOT + "/clientService"),
+    grants = require("../" + process.env.LIB_ROOT + "/grantService"),
+    tokens = require("../" + process.env.LIB_ROOT + "/tokenService"),
     should = require('should'),
     config = require("../config"),
     async = require("async"),
