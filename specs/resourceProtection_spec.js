@@ -112,9 +112,17 @@ describe("Resource management", function () {
             });
         });
 
+        it("should reject request if the owner does not match the one who granted the authorization", function (done) {
+            options.url = 'https://localhost:' + config.resource.proxy.port +  "/api/AnotherResourceOwner/secure";
+
+            request(options, function (err, response, body) {
+                expect(response.statusCode).toEqual(403);
+                done();
+            });
+        });
+
         it("should reject requests with an outdated token");
 
-        it("should reject request if the owner does not match the one who granted the authorization");
     });
 
     afterEach(function (done) {

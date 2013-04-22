@@ -21,6 +21,8 @@ function secureRoute(req, res) {
 function defineMockRoutes(app) {
     app.get('/api/TestResourceOwner/insecure', insecureRoute);
     app.get('/api/TestResourceOwner/secure', secureRoute);
+    app.get('/api/AnotherResourceOwner/insecure', insecureRoute);
+    app.get('/api/AnotherResourceOwner/secure', secureRoute);
 }
 
 function createMockApp(callback) {
