@@ -19,7 +19,15 @@ The system implements OAuth 2.0 Web Application Flow, as depicted by the figure:
 ![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20Flow.png "Authorization Overview")
 
 Unlike other OAuth 2.0 providers, oAuThor does not provides resources of its own, but a proxy that can be used to
-protect whatever rest resource is put behind it.
+protect whatever rest resource is put behind it. In order for OAuthor to be able to check the resource owner and scope 
+of a given URL, and thus to decide whether to allow the request or deny it, the protected resources should use
+urls following this path convention:
+
+* All the resources belonging to a user should be under a scope from which the id of the user can be extracted using a RE.
+* The protected scope will be matched against the path of the resource.
+
+The protected resource should give OAuthor two regular expressions to extract each of this fields (Resource Owner ID and 
+Scope).
 
 Implementation details
 ----------------------
