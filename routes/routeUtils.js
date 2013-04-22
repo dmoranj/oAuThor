@@ -44,8 +44,8 @@ function render(req, res, index, type, err, results) {
 
             delete results[index].redirectUri;
 
-            if (req.query.state) {
-                results[index].state = req.query.state;
+            if (req.body.state) {
+                results[index].state = req.body.state;
             }
 
             res.redirect(302, uri + encodeQueryString(results[index]));

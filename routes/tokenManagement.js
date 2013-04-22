@@ -30,7 +30,7 @@ function execTokenFunction(clientid, clientSecret, scope, code, refresh, type) {
         console.log("TYPE: Refresh token");
         return apply(tokens.refresh, clientid, scope, refresh);
     } else if (type == "client_credentials") {
-        return apply(tokens.get, clientid, scope);
+        return apply(tokens.getCcToken, clientid);
     } else {
         return function (callback) {
             var err = {

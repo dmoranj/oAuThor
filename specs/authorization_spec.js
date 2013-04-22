@@ -46,19 +46,18 @@ describe("Authorization Code Grant", function () {
         beforeEach(function () {
             options = {
                 url: 'https://localhost:' + config.endpoint.port + '/grant',
-                method: 'GET',
-                qs: {
+                method: 'POST',
+                json: {
                     client_id: CLIENT_ID,
                     scope: SCOPE,
                     response_type: "code"
                 },
-                json: {},
                 followRedirect: false
             };
         });
 
         it("should reject requests if the client does not exist", function (done) {
-            options.qs.client_id = "falseApp";
+            options.json.client_id = "falseApp";
 
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(404);
@@ -67,7 +66,7 @@ describe("Authorization Code Grant", function () {
         });
 
         it("should require the response type", function(done) {
-            delete options.qs.response_type;
+            delete options.json.response_type;
 
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(400);
@@ -76,7 +75,7 @@ describe("Authorization Code Grant", function () {
         });
 
         it("should require a valid response type 'code' | 'token' ", function(done) {
-            options.qs.response_type = "falseType";
+            options.json.response_type = "falseType";
 
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(401);
@@ -85,7 +84,7 @@ describe("Authorization Code Grant", function () {
         });
 
         it("should reject requests if they don't have a scope", function (done) {
-            delete options.qs.scope;
+            delete options.json.scope;
 
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(400);
@@ -95,7 +94,7 @@ describe("Authorization Code Grant", function () {
 
         it("should save the grant in the database", function (done) {
             request(options, function (err, response, body) {
-                grants.find(options.qs.client_id, function (error, grantList) {
+                grants.find(options.json.client_id, function (error, grantList) {
                     expect(error).toBeNull();
                     expect(grantList.length).toEqual(1);
                     done();
@@ -107,8 +106,8 @@ describe("Authorization Code Grant", function () {
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(302);
                 expect(response.headers.location).toBeDefined();
-                var
-                    parsedUrl = require("url").parse(response.headers.location, true);
+
+                var parsedUrl = require("url").parse(response.headers.location, true);
 
                 expect(parsedUrl.protocol + "//" + parsedUrl.host).toEqual(REDIRECT_URI);
                 expect(parsedUrl.query.code).toMatch(/[0-9A-Fa-f\-]{36}/);
@@ -118,7 +117,7 @@ describe("Authorization Code Grant", function () {
         });
 
         it("should preserve the state from the original request in the redirection", function (done) {
-            options.qs.state = "InternalState";
+            options.json.state = "InternalState";
 
             request(options, function (err, response, body) {
                 var
