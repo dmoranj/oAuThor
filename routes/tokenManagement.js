@@ -25,15 +25,17 @@ function addHeaders(res, callback) {
 function execTokenFunction(clientid, clientSecret, scope, code, refresh, type) {
     if (type == "authorization_code" && code) {
         console.log("TYPE: Authorization code");
-        return apply(tokens.get, clientid, clientSecret, scope, code);
+        return apply(tokens.get, clientid, scope, code);
     } else if (type == "refresh_token" && refresh) {
         console.log("TYPE: Refresh token");
-        return apply(tokens.refresh, clientid, clientSecret, scope, refresh);
+        return apply(tokens.refresh, clientid, scope, refresh);
+    } else if (type == "client_credentials") {
+        return apply(tokens.get, clientid, scope);
     } else {
         return function (callback) {
             var err = {
                 code: 401,
-                message: "Wrong grant type"
+                message: "Wrong grant type or arguments"
             };
 
             callback(err);

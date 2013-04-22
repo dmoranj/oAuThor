@@ -12,11 +12,13 @@ var apps = require("../app"),
     CLIENT_ID,
     CLIENT_SECRET,
     FAKED_CLIENT_ID,
+    FAKED_SECRET,
+    authorization,
     code,
     options,
     server;
 
-describe("Authorization Management", function () {
+describe("Authorization Code Grant", function () {
     beforeEach(function (done) {
         apps.create(function (error, createdServer) {
             clients.create(REDIRECT_URI, "testApp", "confidential", function (error, result) {
@@ -24,6 +26,7 @@ describe("Authorization Management", function () {
                 CLIENT_SECRET = result.secret;
                 clients.create("http://fakedRedirection", "Faked App", "confidential", function (error, result) {
                     FAKED_CLIENT_ID = result.id;
+                    FAKED_SECRET = result.secret;
 
                     done();
                 });
@@ -132,6 +135,8 @@ describe("Authorization Management", function () {
             config.tokens.expireTime = (24 * 60 * 60 * 1000);
 
             grants.add(CLIENT_ID, SCOPE, "code", function (err, result) {
+                authorization = 'Basic ' + new Buffer(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64');
+
                 options = {
                     url: 'https://localhost:' + config.endpoint.port + '/token',
                     method: 'POST',
@@ -141,6 +146,9 @@ describe("Authorization Management", function () {
                         code: result.code,
                         client_secret: CLIENT_SECRET,
                         grant_type: "authorization_code"
+                    },
+                    headers: {
+                        Authorization: authorization
                     },
                     followRedirect: false
                 };
@@ -178,6 +186,7 @@ describe("Authorization Management", function () {
 
         it("should reject requests if the client_id does not match the one associated to the token", function (done) {
             options.json.client_id = FAKED_CLIENT_ID;
+            options.headers.authorization = 'Basic ' + new Buffer(FAKED_CLIENT_ID + ':' + FAKED_SECRET).toString('base64');
 
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(401);
@@ -185,30 +194,7 @@ describe("Authorization Management", function () {
             });
         });
 
-        it("should reject requests if the client_secret does not correspond to that client_id", function (done) {
-            options.json.client_secret = "Bad secret";
-
-            request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(401);
-                done();
-            });
-        });
-
-        it("should allow requests with the authentication data in a BASIC authorization header", function (done) {
-            delete options.json.client_secret;
-            delete options.json.client_id;
-
-            options.headers = {
-                Authorization: 'Basic ' + new Buffer(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64')
-            };
-
-            request(options, function (err, response, body) {
-                expect(response.statusCode).toEqual(200);
-                done();
-            });
-        });
-
-        it("should return an authorization token and a refresh token when the code is valid", function (done) {
+        it("should return an access token and a refresh token when the code is valid", function (done) {
             request(options, function (err, response, body) {
                 expect(response.statusCode).toEqual(200);
                 expect(body.access_token).toMatch(/[0-9A-Fa-f\-]{36}/);
@@ -234,7 +220,9 @@ describe("Authorization Management", function () {
             config.tokens.expireTime = (24 * 60 * 60 * 1000);
 
             grants.add(CLIENT_ID, SCOPE, "code", function (err, result) {
-                tokens.get(CLIENT_ID, CLIENT_SECRET, SCOPE, result.code, function (error, token) {
+                tokens.get(CLIENT_ID, SCOPE, result.code, function (error, token) {
+                    authorization = 'Basic ' + new Buffer(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64');
+
                     options = {
                         url: 'https://localhost:' + config.endpoint.port + '/token',
                         method: 'POST',
@@ -245,7 +233,10 @@ describe("Authorization Management", function () {
                             refresh_token: token.refresh_token,
                             client_secret: CLIENT_SECRET
                         },
-                        followRedirect: false
+                        followRedirect: false,
+                        headers: {
+                            Authorization: authorization
+                        }
                     };
 
                     done();
