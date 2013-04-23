@@ -14,8 +14,6 @@ var apps = require("../app"),
     SCOPE = "/stuff",
     CLIENT_ID,
     CLIENT_SECRET,
-    RESOURCE_OWNER_REGEX = /api\/(.*)\/.*/,
-    SCOPE_REGEX = /api\/.*(\/.*)/,
     code,
     server,
     authorization,
@@ -29,16 +27,15 @@ describe("Client Credentials Grant", function () {
     beforeEach(function (done) {
         async.series([
             mockResource.createMockApp,
-            async.apply(proxies.create, RESOURCE_OWNER_REGEX, SCOPE_REGEX),
             apps.create,
             async.apply(clients.create, REDIRECT_URI, "testApp", "confidential")
         ], function (err, results) {
             config.tokens.expireTime = (24 * 60 * 60 * 1000);
             mockRes = results[0];
-            proxy = results[1];
-            server = results[2];
-            CLIENT_ID = results[3].id;
-            CLIENT_SECRET = results[3].secret;
+            proxy = results[1][1];
+            server = results[1][0];
+            CLIENT_ID = results[2].id;
+            CLIENT_SECRET = results[2].secret;
             authorization = 'Basic ' + new Buffer(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64');
 
             optionsAuthorize = {
@@ -67,8 +64,7 @@ describe("Client Credentials Grant", function () {
 
     afterEach(function (done) {
         async.series([
-            async.apply(apps.close, server),
-            async.apply(proxies.close, proxy),
+            async.apply(apps.close, server, proxy),
             async.apply(mockResource.close, mockRes)
         ], function (err, results) {
             if (err) {

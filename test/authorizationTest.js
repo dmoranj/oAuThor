@@ -8,6 +8,7 @@ var apps = require("../app"),
     should = require('should'),
     config = require("../config"),
     async = require("async"),
+    mockResource = require("./resourceMock"),
     REDIRECT_URI = "http://redirecturi.com",
     SCOPE = "/stuff",
     CLIENT_ID,
@@ -15,14 +16,17 @@ var apps = require("../app"),
     FAKED_CLIENT_ID,
     FAKED_SECRET,
     RESOURCE_OWNER = "TestResourceOwner",
+    RESOURCE_OWNER_PASS = "ResourcePassword",
     authorization,
     code,
     options,
-    server;
+    server,
+    proxy,
+    mockRes;
 
 describe("Authorization Code Grant", function () {
     beforeEach(function (done) {
-        apps.create(function (error, createdServer) {
+        apps.create(function (error, createdServer, createdProxy) {
             clients.create(REDIRECT_URI, "testApp", "confidential", function (error, result) {
                 CLIENT_ID = result.id;
                 CLIENT_SECRET = result.secret;
@@ -30,17 +34,20 @@ describe("Authorization Code Grant", function () {
                     FAKED_CLIENT_ID = result.id;
                     FAKED_SECRET = result.secret;
 
-                    done();
+                    mockResource.createMockApp(function (error, mockedServer) {
+                        mockRes = mockedServer;
+                        server = createdServer;
+                        proxy = createdProxy;
+                        done();
+                    });
                 });
             });
-
-            server = createdServer;
         });
     });
 
     afterEach(function (done) {
-        apps.close(server, function () {
-            done();
+        apps.close(server, proxy, function () {
+            mockRes.close(done);
         });
     });
 
@@ -55,11 +62,21 @@ describe("Authorization Code Grant", function () {
                     response_type: "code",
                     resource_owner: RESOURCE_OWNER
                 },
+                headers: {
+                    Authorization: 'Basic ' + new Buffer(RESOURCE_OWNER + ':' + RESOURCE_OWNER_PASS).toString('base64')
+                },
                 followRedirect: false
             };
         });
 
-        it("should authenticate the resource owner");
+        it("should authenticate the resource owner", function (done) {
+            options.headers = null;
+
+            request(options, function (err, response, body) {
+                response.statusCode.should.equal(401);
+                done();
+            });
+        });
 
         it("should reject requests if the client does not exist", function (done) {
             options.json.client_id = "falseApp";

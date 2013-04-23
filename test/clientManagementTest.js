@@ -5,7 +5,8 @@ var apps = require("../app"),
     clients = require("../" + process.env.LIB_ROOT + "/clientService"),
     config = require('../config'),
     should = require('should'),
-    server;
+    server,
+    proxy;
 
 
 describe("Client creation", function () {
@@ -15,7 +16,7 @@ describe("Client creation", function () {
             options;
 
         beforeEach(function (done) {
-            apps.create(function (error, createdServer) {
+            apps.create(function (error, createdServer, createdProxy) {
                 options = {
                     url: 'https://localhost:' + config.endpoint.port + '/register',
                     method: 'POST',
@@ -27,12 +28,13 @@ describe("Client creation", function () {
                 };
 
                 server = createdServer;
+                proxy = createdProxy;
                 done();
             });
         });
 
         afterEach(function (done) {
-            apps.close(server, function () {
+            apps.close(server, proxy, function () {
                 done();
             });
         });

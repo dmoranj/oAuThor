@@ -23,9 +23,6 @@ var
     FAKED_TOKEN = "alsdfoiajs9eufpasd9i",
     RESOURCE_OWNER = "TestResourceOwner",
 
-    RESOURCE_OWNER_REGEX = /api\/(.*)\/.*/,
-    SCOPE_REGEX = /api\/.*(\/.*)/,
-
     options,
     server,
     mockRes,
@@ -36,15 +33,14 @@ describe("Resource management", function () {
     beforeEach(function (done) {
         series([
             mockResource.createMockApp,
-            apply(proxies.create, RESOURCE_OWNER_REGEX, SCOPE_REGEX),
             apps.create,
             apply(clients.create, REDIRECT_URI, "testApp", "confidential")
         ], function (err, results) {
             mockRes = results[0];
-            proxy = results[1];
-            server = results[2];
-            CLIENT_ID = results[3].id;
-            CLIENT_SECRET = results[3].secret;
+            proxy = results[1][0];
+            server = results[1][1];
+            CLIENT_ID = results[2].id;
+            CLIENT_SECRET = results[2].secret;
 
             grants.add(CLIENT_ID, SCOPE, "code", RESOURCE_OWNER, function (err, grant) {
                 tokens.get(CLIENT_ID, SCOPE, grant.code, function (error, token) {
@@ -128,8 +124,7 @@ describe("Resource management", function () {
 
     afterEach(function (done) {
         series([
-            apply(apps.close, server),
-            apply(proxies.close, proxy),
+            apply(apps.close, server, proxy),
             apply(mockResource.close, mockRes)
         ], function (err, results) {
             if (err) {

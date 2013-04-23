@@ -2,7 +2,8 @@
 
 var express = require('express'),
     http = require('http'),
-    config = require('../config');
+    config = require('../config'),
+    globalPassword = "ResourcePassword";
 
 function insecureRoute(req, res) {
     res.json(200, {
@@ -18,9 +19,28 @@ function secureRoute(req, res) {
     });
 }
 
+function extractCredentials(authHeader) {
+    return new Buffer(authHeader.split(" ")[1], 'base64').toString('ascii').split(":");
+}
+
+function login(req, res) {
+    var credentials;
+
+    if (req.headers && req.headers.authorization) {
+        credentials = extractCredentials(req.headers.authorization);
+    }
+
+    if (credentials && credentials[1] && credentials[1] === globalPassword) {
+        res.json(200, {});
+    } else {
+        res.json(401, {});
+    }
+}
+
 function defineMockRoutes(app) {
     app.get('/api/:ownerId/insecure', insecureRoute);
     app.get('/api/:ownerId/secure', secureRoute);
+    app.get('/api/login', login);
 }
 
 function createMockApp(callback) {
