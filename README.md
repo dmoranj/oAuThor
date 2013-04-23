@@ -16,7 +16,13 @@ Authorization Process
 ---------------------
 The system implements OAuth 2.0 Web Application Flow, as depicted by the figure:
 
-![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20Flow.png "Authorization Overview")
+![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20Flow.png "Authentication Code Overview")
+
+![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20ROC.png "Resource Owner Credentials Overview")
+
+![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20RImplicit.png "Implicit Grant Credentials Overview")
+
+![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20RCC.png "Client Credentials Overview")
 
 Unlike other OAuth 2.0 providers, oAuThor does not provides resources of its own, but a proxy that can be used to
 protect whatever rest resource is put behind it. In order for OAuthor to be able to check the resource owner and scope 
