@@ -14,26 +14,51 @@ experimental.
 
 Authorization Process
 ---------------------
-The system implements OAuth 2.0 Web Application Flow, as depicted by the figure:
+The system currently implements various OAuth 2.0 flows. The actual flow to use depends on how the process is initiated
+and by whom (the Client or the Resource Owner). 
+
+### OAuth Roles
+
+Through all this documentation, some OAuth-specific terms will be used:
+
+* Resource Server (RS): is the server that hosts the data or services that wants to be authorized. 
+* Resource Owner (RO): is a user of the Resource Server, whose resources will be acessed.
+* Client (C): is the application the Resource Owner is using. The client will access the resources of the RO on its behalf.
+* Authorization Server (AS): central authority that manages the OAuth 2.0 Authorization flow. 
+
+### Implementation-specific details
+
+The OAuth 2.0 specification leaves some freedom to the developer in certain implementation details. Here are some of them
+explained:
+* Unlike other OAuth 2.0 providers, oAuThor does not provides resources of its own, but a proxy that can be used to
+protect whatever rest resource is put behind it. In order for OAuthor to be able to check the resource owner and scope 
+of a given URL, and thus to decide whether to allow the request or deny it, the protected resources should use
+urls following this path convention (the protected RS should give OAuthor regular expressions to extract each of this):
+  * All the resources belonging to a user should be under a scope from which the id of the user can be extracted using a RE.
+  * The protected scope will be matched against the path of the resource.
+* The specification doesn't specify who or how the access token validity is checked. It doesn't specify how the RS
+should integrate with the overall authorization flux. In our implementation we provide a proxy (instantiated
+within the AS process) that is connected to the RS. This proxy is the responsible of the validity and scope checking 
+of the token.
+
+
+### Authorization Flows
+
+#### Authorization Code Flow
 
 ![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20Flow.png "Authentication Code Overview")
 
+#### Resource Owner Credentials Flow
+
 ![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20ROC.png "Resource Owner Credentials Overview")
 
-![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20RImplicit.png "Implicit Grant Credentials Overview")
+#### Implicit Grant Flow
 
-![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20RCC.png "Client Credentials Overview")
+![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20Implicit.png "Implicit Grant Credentials Overview")
 
-Unlike other OAuth 2.0 providers, oAuThor does not provides resources of its own, but a proxy that can be used to
-protect whatever rest resource is put behind it. In order for OAuthor to be able to check the resource owner and scope 
-of a given URL, and thus to decide whether to allow the request or deny it, the protected resources should use
-urls following this path convention:
+#### Client Credentials Flow
 
-* All the resources belonging to a user should be under a scope from which the id of the user can be extracted using a RE.
-* The protected scope will be matched against the path of the resource.
-
-The protected resource should give OAuthor two regular expressions to extract each of this fields (Resource Owner ID and 
-Scope).
+![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20CC.png "Client Credentials Overview")
 
 Implementation details
 ----------------------
