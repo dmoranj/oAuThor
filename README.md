@@ -23,7 +23,7 @@ Through all this documentation, some OAuth-specific terms will be used:
 
 * Resource Server (RS): is the server that hosts the data or services that wants to be authorized. 
 * Resource Owner (RO): is a user of the Resource Server, whose resources will be acessed.
-* Client (C): is the application the Resource Owner is using. The client will access the resources of the RO on its behalf.
+* Client: is the application the Resource Owner is using. The client will access the resources of the RO on its behalf.
 * Authorization Server (AS): central authority that manages the OAuth 2.0 Authorization flow. 
 
 ### Implementation-specific details
@@ -40,23 +40,30 @@ urls following this path convention (the protected RS should give OAuthor regula
 should integrate with the overall authorization flux. In our implementation we provide a proxy (instantiated
 within the AS process) that is connected to the RS. This proxy is the responsible of the validity and scope checking 
 of the token.
-
+* The authentication authorities are also leaved as implementation details: the Authorization Server is usually the 
+authentication endpoint, but its not specified whether it should use its own mechanisms or whether it should delegate 
+it in other authorities. OAuThor approach is to authenticate Client requests with the credentials generated along with the
+client creation and delegate RO authentication to the RS. Preconfigured admin credentials will also be provided.
 
 ### Authorization Flows
 
-#### Authorization Code Flow
+#### Authorization Code Grant
+
+This three legged Grant is intended to be used in server to server authorization, where the client credentials are
+confidential (they aren't distributed or downloaded into a frontend app). The flow is based in browser redirections
+between the AS and the Client, that will in turn produce a short-lived token and 
 
 ![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20Flow.png "Authentication Code Overview")
 
-#### Resource Owner Credentials Flow
+#### Resource Owner Credentials Grant
 
 ![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20ROC.png "Resource Owner Credentials Overview")
 
-#### Implicit Grant Flow
+#### Implicit Grant
 
 ![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20Implicit.png "Implicit Grant Credentials Overview")
 
-#### Client Credentials Flow
+#### Client Credentials Grant
 
 ![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20CC.png "Client Credentials Overview")
 
