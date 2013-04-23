@@ -266,7 +266,8 @@ describe("Authorization Code Grant", function () {
             });
         });
 
-        it("should return a new authorization token when the refresh token is valid", function (done) {
+
+        it("should return a new access token when the refresh token is valid", function (done) {
             request(options, function (err, response, body) {
                 response.statusCode.should.equal(200);
                 body.access_token.should.match(/[0-9A-Fa-f\-]{36}/);
@@ -278,8 +279,16 @@ describe("Authorization Code Grant", function () {
             });
         });
 
-        xit("should reject already used refresh tokens");
-        xit("should reject invalid refresh tokens");
+        it("should reject already used refresh tokens", function (done) {
+            request(options, function (err, response, body) {
+                request(options, function (err, response, body) {
+                    response.statusCode.should.equal(401);
+                    done();
+                });
+            });
+        });
+
+        it("should reject invalid refresh tokens");
 
     });
 });
