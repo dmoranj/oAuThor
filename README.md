@@ -44,6 +44,11 @@ of the token.
 authentication endpoint, but its not specified whether it should use its own mechanisms or whether it should delegate 
 it in other authorities. OAuThor approach is to authenticate Client requests with the credentials generated along with the
 client creation and delegate RO authentication to the RS. Preconfigured admin credentials will also be provided.
+* To allow multiple different grants over the same RS, some prerequisites were imposed on the Client Credentials grant
+(that gives permission to the client without interaction with the RO). To avoid unwanted Client Credential acceses to
+resources of different Resource Owners, the Client using this grant can only access its own resources, that is, it
+is considered that the Client and the Resource Owner are both the same (so if the Client wants to access resources
+of a different RO, that is, a real user using the Client, it will have to choose another grant type).
 
 ### Authorization Flows
 
