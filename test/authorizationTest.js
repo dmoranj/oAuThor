@@ -125,7 +125,7 @@ describe("Authorization Code Grant", function () {
 
         it("should save the grant in the database", function (done) {
             request(options, function (err, response, body) {
-                grants.find(options.json.client_id, function (error, grantList) {
+                grants.find(options.json.client_id, null, function (error, grantList) {
                     should.not.exist(error);
                     grantList.length.should.equal(1);
                     done();
