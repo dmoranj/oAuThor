@@ -18,7 +18,7 @@ var options = {
 function defineRoutes(app) {
     app.post('/register', clientRoutes.create);
     app.post('/grant',
-        grantRoutes.authenticate,
+        grantRoutes.authenticateMid,
         grantRoutes.create);
     app.post('/token',
         clientRoutes.authenticate,

@@ -76,7 +76,7 @@ describe("Client Credentials Grant", function () {
     });
 
     describe("When an access token request arrives", function () {
-        it("should check that the client is authenticated", function (done) {
+        it("should reject unauthenticated clients", function (done) {
             optionsAuthorize.headers = null;
 
             request(optionsAuthorize, function (err, response, body) {

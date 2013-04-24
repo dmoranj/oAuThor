@@ -35,7 +35,7 @@ function createGrant(req, res) {
  * @param req
  * @param res
  */
-function authenticate(req, res, next) {
+function authenticate(authString, callback) {
     var options = {
         url: 'http://' + config.resource.original.host + ":" +
             config.resource.original.port + config.resource.original.loginPath,
@@ -44,8 +44,8 @@ function authenticate(req, res, next) {
         headers: {}
     };
 
-    if (req.headers.authorization) {
-        options.headers.authorization = req.headers.authorization;
+    if (authString) {
+        options.headers.authorization = authString;
     }
 
     request(options, function (err, response, body) {
@@ -55,12 +55,30 @@ function authenticate(req, res, next) {
                 message: "Unauthenticated"
             };
 
-            res.json(error.code, error);
+            callback(error);
         } else {
-            next();
+            callback(null);
         }
     });
 }
 
+/**
+ * Express middleware to perform the authentication.
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
+function authenticationMiddleware(req, res, next) {
+    authenticate(req.headers.authorization, function(error) {
+        if (error) {
+            res.json(error.code, error);
+        } else {
+            next();
+        }
+    })
+}
+
 exports.create = createGrant;
 exports.authenticate = authenticate;
+exports.authenticateMid = authenticationMiddleware;
