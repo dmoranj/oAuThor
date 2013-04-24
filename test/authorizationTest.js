@@ -305,7 +305,14 @@ describe("Authorization Code Grant", function () {
             });
         });
 
-        it("should reject invalid refresh tokens");
+        it("should reject invalid refresh tokens", function (done) {
+            options.json.refresh_token = options.json.access_token;
+
+            request(options, function (err, response, body) {
+                response.statusCode.should.equal(401);
+                done();
+            });
+        });
 
     });
 });
