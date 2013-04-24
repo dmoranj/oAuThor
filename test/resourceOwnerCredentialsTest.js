@@ -11,7 +11,7 @@ var apps = require("../app"),
     should = require('should'),
     async = require("async"),
     REDIRECT_URI = "http://redirecturi.com",
-    SCOPE = "/stuff",
+    SCOPE = "/secure",
     CLIENT_ID,
     CLIENT_SECRET,
     RESOURCE_OWNER = "TestResourceOwner",
@@ -114,7 +114,24 @@ describe("Resource Owner Credentials Grant", function () {
     });
 
     describe("When a resource owner tries to access a resource", function () {
-        it("should allow to access that resource owner's resources");
-        it("should forbid access to other resource owner's resources");
+        it("should allow to access that resource owner's resources", function (done) {
+            request(optionsAuthorize, function (err, response, body) {
+                optionsAccess.headers.Authorization = 'Bearer ' + body.access_token;
+                request(optionsAccess, function (err, response, body) {
+                    response.statusCode.should.equal(200);
+                    done();
+                });
+            });
+        });
+        it("should forbid access to other resource owner's resources", function (done) {
+            request(optionsAuthorize, function (err, response, body) {
+                optionsAccess.url = 'https://localhost:' + config.resource.proxy.port + "/api/FakedOwner/secure",
+                optionsAccess.headers.Authorization = 'Bearer ' + body.access_token;
+                request(optionsAccess, function (err, response, body) {
+                    response.statusCode.should.equal(403);
+                    done();
+                });
+            });
+        });
     });
 });
