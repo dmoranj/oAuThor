@@ -51,19 +51,30 @@ client creation and delegate RO authentication to the RS. Preconfigured admin cr
 
 This three legged Grant is intended to be used in server to server authorization, where the client credentials are
 confidential (they aren't distributed or downloaded into a frontend app). The flow is based in browser redirections
-between the AS and the Client, that will in turn produce a short-lived token and 
+between the AS and the Client, that will in turn produce a short-lived token and an optional long-lived refresh token. 
+Refresh tokens can be used to obtain new access tokens without RO interaction.
 
 ![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20Flow.png "Authentication Code Overview")
 
 #### Resource Owner Credentials Grant
 
+In this grant, the Client is considered to be trusted by the RO. The RO gives the Client its credentials and the 
+client use them to get an access token directly from the AS. This flow is mainly targeted to mobile devices.
+
 ![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20ROC.png "Resource Owner Credentials Overview")
 
 #### Implicit Grant
 
+This grant allows the RO to directly access its resources without interacting with the Client; is the RO's user agent
+(thr browser, for example) who uses his credentials to retrieve a token from the AS, using it, in turn, to access
+the RS. Once the data has been extracted from the RS, it can be sent to the Client.
+
 ![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20Implicit.png "Implicit Grant Credentials Overview")
 
 #### Client Credentials Grant
+
+This grant is the simplest one, and basically depicts a basic authentication between the Client and the AS with a 
+set of short-lived and long-lived tokens, to avoid sending the credentials over and over again to the server.
 
 ![Alt text](https://raw.github.com/dmoranj/oAuThor/master/img/oAuth2%20CC.png "Client Credentials Overview")
 
