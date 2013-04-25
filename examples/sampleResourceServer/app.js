@@ -25,6 +25,7 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
+app.post('/login', users.authenticate);
 app.post('/user', users.create);
 app.get('/user/:userId', users.get);
 app.get('/user', users.list);

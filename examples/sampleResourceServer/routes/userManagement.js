@@ -23,11 +23,11 @@ exports.remove = function(req, res){
 };
 
 exports.get = function(req, res){
-    users.get(req.params.userId, function(error, user) {
+    users.get(req.params.userId, function(error) {
         if (error) {
             res.json(error.code, error);
         } else {
-            res.json(200, user);
+            res.json(200, {});
         }
     });
 };
@@ -41,3 +41,19 @@ exports.list = function(req, res){
         }
     });
 };
+
+function extractCredentials(authHeader) {
+    return new Buffer(authHeader.split(" ")[1], 'base64').toString('ascii').split(":");
+}
+
+exports.authenticate = function(req, res) {
+    var credentials = extractCredentials(req.headers.authorization);
+
+    users.authenticate(credentials[0], credentials[1], function(error) {
+        if (error) {
+            res.json(error.code, error);
+        } else {
+            res.json(200, {});
+        }
+    });
+}
