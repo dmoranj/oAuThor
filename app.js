@@ -4,6 +4,7 @@ var express = require('express'),
     clientRoutes = require('./routes/clientManagement'),
     grantRoutes = require('./routes/grantManagement'),
     tokenRoutes = require('./routes/tokenManagement'),
+    proxies = require('./lib/proxyService'),
     https = require('https'),
     path = require('path'),
     fs = require('fs'),
@@ -16,8 +17,12 @@ var options = {
 
 function defineRoutes(app) {
     app.post('/register', clientRoutes.create);
-    app.get('/grant', grantRoutes.create);
-    app.post('/token', tokenRoutes.get);
+    app.post('/grant',
+        grantRoutes.authenticateMid,
+        grantRoutes.create);
+    app.post('/token',
+        clientRoutes.authenticate,
+        tokenRoutes.get);
 }
 
 function create(callback) {
@@ -28,7 +33,7 @@ function create(callback) {
         app.set('port', process.env.PORT || config.endpoint.port);
         app.set('views', __dirname + '/views');
         app.set('view engine', 'jade');
-        app.use(express.logger('dev'));
+        //app.use(express.logger('dev'));
         app.use(express.bodyParser());
         app.use(express.methodOverride());
         app.use(app.router);
@@ -41,15 +46,26 @@ function create(callback) {
 
     defineRoutes(app);
 
-    server = https.createServer(options, app).listen(app.get('port'), function () {
-        console.log('Express server listening on port ' + app.get('port'));
-    });
+    server = https.createServer(options, app).listen(app.get('port'), function () {});
 
-    callback(null, server);
+    proxies.create(config.resource.original.regex.resourceOwner,
+        config.resource.original.regex.scope, function (error, proxy) {
+            if (error) {
+                console.error("Errror creating Proxy: " + error);
+            } else {
+                callback(null, server, proxy);
+            }
+        });
 }
 
-function close(server, callback) {
-    server.close(callback);
+function close(server, proxy, callback) {
+    server.close(function (err) {
+        if (err) {
+            callback(err);
+        } else {
+            proxy.close(callback);
+        }
+    });
 }
 
 exports.create = create;

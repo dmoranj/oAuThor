@@ -19,7 +19,12 @@ config.resource = {
     original: {
         host: "localhost",
         port: 4000,
-        realm: "resourceServer"
+        realm: "resourceServer",
+        loginPath: "/api/login",
+        regex: {
+            resourceOwner: /api\/(.*)\/.*/,
+            scope: /api\/.*(\/.*)/
+        }
     },
     proxy: {
         port: 8000

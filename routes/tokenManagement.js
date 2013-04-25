@@ -3,6 +3,8 @@
 var
     async = require("async"),
     tokens = require("../lib/tokenService"),
+    grants = require("../lib/grantService"),
+    grantMgmt = require("./grantManagement"),
     utils = require("./routeUtils"),
     series = async.series,
     apply = async.apply;
@@ -22,22 +24,39 @@ function addHeaders(res, callback) {
     callback(null);
 }
 
-function execTokenFunction(clientid, clientSecret, scope, code, refresh, type) {
-    if (type == "authorization_code" && code) {
-        console.log("TYPE: Authorization code");
-        return apply(tokens.get, clientid, clientSecret, scope, code);
-    } else if (type == "refresh_token" && refresh) {
-        console.log("TYPE: Refresh token");
-        return apply(tokens.refresh, clientid, clientSecret, scope, refresh);
-    } else {
-        return function (callback) {
-            var err = {
-                code: 401,
-                message: "Wrong grant type"
-            };
-
-            callback(err);
+function createUnauthenticatedFunction() {
+    return function (callback) {
+        var err = {
+            code: 401,
+            message: "Wrong grant type or arguments"
         };
+
+        callback(err);
+    };
+}
+
+function selectTokenFunction(clientid, clientSecret, scope, code, refresh, type, resourceOwner, resourceOwnerPassword, callback) {
+    if (type == "authorization_code" && code) {
+        callback(apply(tokens.get, clientid, scope, code));
+    } else if (type == "refresh_token" && refresh) {
+        callback(apply(tokens.refresh, clientid, scope, refresh));
+    } else if (type == "client_credentials") {
+        callback(apply(tokens.getCcToken, clientid));
+    } else if (type == "password") {
+        var authString = 'Basic ' + new Buffer(resourceOwner + ':' + resourceOwnerPassword).toString('base64');
+
+        async.series([
+            async.apply(grantMgmt.authenticate, authString),
+            async.apply(grants.add, clientid, scope, "password", resourceOwner)
+        ], function (error, results) {
+            if (error) {
+                callback(createUnauthenticatedFunction());
+            } else {
+                callback(apply(tokens.getRoToken, clientid, resourceOwner, scope));
+            }
+        });
+    } else {
+        callback(createUnauthenticatedFunction());
     }
 }
 
@@ -51,22 +70,26 @@ function extractCredentials(req, res) {
     }
 }
 
-function getToken(req, res) {
-    extractCredentials(req, res);
-
-    var
-        tokenFunc = execTokenFunction(req.body.client_id,
-            req.body.client_secret,
-            req.body.scope,
-            req.body.code,
-            req.body.refresh_token,
-            req.body.grant_type);
-
+function applyTokenFunction(req, res, tokenFunc) {
     series([
         apply(checkCreateParameters, req),
         tokenFunc,
         apply(addHeaders, res)
     ], apply(utils.render, req, res, 1, "ok"));
+}
+
+function getToken(req, res) {
+    extractCredentials(req, res);
+
+    selectTokenFunction(req.body.client_id,
+            req.body.client_secret,
+            req.body.scope,
+            req.body.code,
+            req.body.refresh_token,
+            req.body.grant_type,
+            req.body.username,
+            req.body.password,
+            apply(applyTokenFunction, req, res));
 }
 
 exports.get = getToken;

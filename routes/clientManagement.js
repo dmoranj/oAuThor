@@ -32,9 +32,30 @@ function checkCreateParameters(req, callback) {
     ], callback);
 }
 
+function authenticate(req, res, next) {
+    if (req.headers && req.headers.authorization && req.headers.authorization.match(/Basic .*/)) {
+        var credentials = utils.extract(req.headers.authorization);
+
+        clients.authenticate(credentials[0], credentials[1], function (error) {
+            if (error) {
+                res.json(error.code, error);
+            } else {
+                next();
+            }
+        });
+    } else {
+        res.json(401, {
+            code: 401,
+            message: "Unauthenticated"
+        });
+    }
+}
+
 exports.create = function (req, res) {
     series([
         apply(checkCreateParameters, req),
         apply(clients.create, req.body.redirectUri, req.body.appName, req.body.type)
     ], apply(utils.render, req, res, 1, "ok"));
 };
+
+exports.authenticate = authenticate;

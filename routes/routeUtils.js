@@ -23,15 +23,22 @@ function checkBody(param, message, req) {
     return checkParameter(param, message, req.body);
 }
 
-function encodeQueryString(data) {
-    var
-        query = "?";
+function encodeQueryString(querySymbol, data) {
+    var query = querySymbol;
 
     for (var i in data) {
         query+= i + "=" + data[i] + "&";
     }
 
     return query;
+}
+
+function parseQueryString(data) {
+    return data.split("&").reduce(function(obj, item) {
+        var attrs = item.split("=");
+        obj[attrs[0]] = attrs[1];
+        return obj;
+        }, {});
 }
 
 function render(req, res, index, type, err, results) {
@@ -44,11 +51,15 @@ function render(req, res, index, type, err, results) {
 
             delete results[index].redirectUri;
 
-            if (req.query.state) {
-                results[index].state = req.query.state;
+            if (req.body.state) {
+                results[index].state = req.body.state;
             }
 
-            res.redirect(302, uri + encodeQueryString(results[index]));
+            if (req.body && req.body.response_type == "token") {
+                res.redirect(302, uri + encodeQueryString("#", results[index]));
+            } else {
+                res.redirect(302, uri + encodeQueryString("?", results[index]));
+            }
         } else if (type == "ok") {
             res.json(200, results[index]);
         } else {
@@ -69,3 +80,4 @@ exports.checkBody = checkBody;
 exports.checkQuery = checkQuery;
 exports.render = render;
 exports.extract = extractCredentials;
+exports.parse = parseQueryString;
