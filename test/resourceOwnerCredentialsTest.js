@@ -80,7 +80,6 @@ describe("Resource Owner Credentials Grant", function () {
         });
     });
 
-
     describe("When a acess token request arrives", function () {
         it("should reject unauthenticated clients", function (done) {
             optionsAuthorize.headers = null;

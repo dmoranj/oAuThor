@@ -3,6 +3,7 @@
 var
     async = require("async"),
     tokens = require("../lib/tokenService"),
+    grants = require("../lib/grantService"),
     grantMgmt = require("./grantManagement"),
     utils = require("./routeUtils"),
     series = async.series,
@@ -43,7 +44,11 @@ function selectTokenFunction(clientid, clientSecret, scope, code, refresh, type,
         callback(apply(tokens.getCcToken, clientid));
     } else if (type == "password") {
         var authString = 'Basic ' + new Buffer(resourceOwner + ':' + resourceOwnerPassword).toString('base64');
-        grantMgmt.authenticate(authString, function (error) {
+
+        async.series([
+            async.apply(grantMgmt.authenticate, authString),
+            async.apply(grants.add, clientid, scope, "password", resourceOwner)
+        ], function (error, results) {
             if (error) {
                 callback(createUnauthenticatedFunction());
             } else {
