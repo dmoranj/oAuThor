@@ -124,7 +124,7 @@ describe("Resource Owner Credentials Grant", function () {
         });
         it("should forbid access to other resource owner's resources", function (done) {
             request(optionsAuthorize, function (err, response, body) {
-                optionsAccess.url = 'https://localhost:' + config.resource.proxy.port + "/api/FakedOwner/secure",
+                optionsAccess.url = 'https://localhost:' + config.resource.proxy.port + "/api/FakedOwner/secure";
                 optionsAccess.headers.Authorization = 'Bearer ' + body.access_token;
                 request(optionsAccess, function (err, response, body) {
                     response.statusCode.should.equal(403);
