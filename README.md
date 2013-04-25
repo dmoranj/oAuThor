@@ -26,6 +26,9 @@ Through all this documentation, some OAuth-specific terms will be used:
 * Client: is the application the Resource Owner is using. The client will access the resources of the RO on its behalf.
 * Authorization Server (AS): central authority that manages the OAuth 2.0 Authorization flow. 
 
+OAuThor implements the AS and a proxy that performs all the OAuth-related tasks of the RS. Some Clients and
+Resource Owner user agents will be implemented, though, as an integration example.
+
 ### Implementation-specific details
 
 The OAuth 2.0 specification leaves some freedom to the developer in certain implementation details. Here are some of them
@@ -49,6 +52,9 @@ client creation and delegate RO authentication to the RS. Preconfigured admin cr
 resources of different Resource Owners, the Client using this grant can only access its own resources, that is, it
 is considered that the Client and the Resource Owner are both the same (so if the Client wants to access resources
 of a different RO, that is, a real user using the Client, it will have to choose another grant type).
+* I don't really understand the need of the D-E steps on the Implicit Grant description, so I will suppose the browser
+is capable of retrieving the token from the fragment in the diagrams (it doesn't affect the server side, that is, 
+the OAuThor implementation, anyway).
 
 ### Authorization Flows
 
