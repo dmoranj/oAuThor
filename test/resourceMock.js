@@ -2,7 +2,7 @@
 
 var express = require('express'),
     http = require('http'),
-    config = require('../config'),
+    config = require('../config').config,
     globalPassword = "ResourcePassword";
 
 function insecureRoute(req, res) {
@@ -40,7 +40,7 @@ function login(req, res) {
 function defineMockRoutes(app) {
     app.get('/api/:ownerId/insecure', insecureRoute);
     app.get('/api/:ownerId/secure', secureRoute);
-    app.get('/api/login', login);
+    app.post('/api/login', login);
 }
 
 function createMockApp(callback) {

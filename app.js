@@ -6,9 +6,10 @@ var express = require('express'),
     tokenRoutes = require('./routes/tokenManagement'),
     proxies = require('./lib/proxyService'),
     https = require('https'),
+    http = require('http'),
     path = require('path'),
     fs = require('fs'),
-    config = require('./config');
+    config = require('./config').config;
 
 var options = {
     key: fs.readFileSync(config.ssl.key),
@@ -33,7 +34,7 @@ function create(callback) {
         app.set('port', process.env.PORT || config.endpoint.port);
         app.set('views', __dirname + '/views');
         app.set('view engine', 'jade');
-        //app.use(express.logger('dev'));
+        app.use(express.logger('dev'));
         app.use(express.bodyParser());
         app.use(express.methodOverride());
         app.use(app.router);
@@ -46,8 +47,13 @@ function create(callback) {
 
     defineRoutes(app);
 
-    server = https.createServer(options, app).listen(app.get('port'), function () {});
+    if (config.endpoint.ssl) {
+        server = https.createServer(options, app).listen(app.get('port'), function () {});
+    } else {
+        server = http.createServer(app).listen(app.get('port'), function () {});
+    }
 
+    console.log("Created Server on " + app.get('port'));
     proxies.create(config.resource.original.regex.resourceOwner,
         config.resource.original.regex.scope, function (error, proxy) {
             if (error) {

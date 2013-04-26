@@ -3,7 +3,8 @@ var
 
 config.endpoint = {
     url: "http://localhost",
-    port: "3000"
+    port: "3000",
+    ssl: true
 };
 
 config.ssl = {
@@ -27,8 +28,18 @@ config.resource = {
         }
     },
     proxy: {
-        port: 8000
+        port: 8000,
+        ssl: true
     }
 };
 
-module.exports = config;
+exports.config = config;
+exports.setConfig = function (newConfig) {
+    newConfig.resource.original.regex.resourceOwner = eval(newConfig.resource.original.regex.resourceOwner);
+    newConfig.resource.original.regex.scope = eval(newConfig.resource.original.regex.scope);
+
+    config.endpoint = newConfig.endpoint;
+    config.ssl = newConfig.ssl;
+    config.tokens = newConfig.tokens;
+    config.resource = newConfig.resource;
+}

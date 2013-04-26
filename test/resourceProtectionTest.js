@@ -7,7 +7,7 @@ var
     clients = require("../" + process.env.LIB_ROOT + "/clientService"),
     grants = require("../" + process.env.LIB_ROOT + "/grantService"),
     tokens = require("../" + process.env.LIB_ROOT + "/tokenService"),
-    config = require("../config"),
+    config = require("../config").config,
     request = require("request"),
     should = require('should'),
     async = require('async'),
