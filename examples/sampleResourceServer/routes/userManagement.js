@@ -23,11 +23,11 @@ exports.remove = function(req, res){
 };
 
 exports.get = function(req, res){
-    users.get(req.params.userId, function(error) {
+    users.get(req.params.userId, function(error, user) {
         if (error) {
             res.json(error.code, error);
         } else {
-            res.json(200, {});
+            res.json(200, user);
         }
     });
 };

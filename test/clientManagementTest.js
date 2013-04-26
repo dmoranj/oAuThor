@@ -3,7 +3,7 @@
 var apps = require("../app"),
     request = require("request"),
     clients = require("../" + process.env.LIB_ROOT + "/clientService"),
-    config = require('../config'),
+    config = require('../config').config,
     should = require('should'),
     server,
     proxy;

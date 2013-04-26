@@ -6,7 +6,7 @@ var
     grants = require("../lib/grantService"),
     request = require("request"),
     utils = require("./routeUtils"),
-    config = require("../config"),
+    config = require("../config").config,
     series = async.series,
     apply = async.apply;
 
@@ -40,7 +40,7 @@ function authenticate(authString, callback) {
         url: 'http://' + config.resource.original.host + ":" +
             config.resource.original.port + config.resource.original.loginPath,
 
-        method: 'GET',
+        method: 'POST',
         headers: {}
     };
 
