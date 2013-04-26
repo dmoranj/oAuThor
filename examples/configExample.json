@@ -1,0 +1,33 @@
+{
+    "endpoint" : {
+        "url": "http://localhost",
+        "port": "3000",
+        "ssl": false
+    },
+
+    "ssl" : {
+        "key": "./ssl/privatekey.pem",
+        "certificate": "./ssl/certificate.pem"
+    },
+
+    "tokens" : {
+        "expireTime": 360000000
+    },
+
+    "resource" : {
+        "original": {
+            "host": "localhost",
+            "port": 4000,
+            "realm": "resourceServer",
+            "loginPath": "/login",
+            "regex": {
+                "resourceOwner": "/user\\/(.*)\\/.*/",
+                "scope": "/user\\/.*(\\/.*)/"
+            }
+        },
+        "proxy": {
+            "port": 8000,
+            "ssl": false
+        }
+    }
+}
