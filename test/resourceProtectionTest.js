@@ -125,7 +125,9 @@ describe("Resource management", function () {
                 var parsedBody = JSON.parse(body);
                 should.exist(parsedBody.request.headers);
                 should.exist(parsedBody.request.headers.td_resourceowner);
+                should.exist(parsedBody.request.headers.td_client);
                 parsedBody.request.headers.td_resourceowner.should.equal(RESOURCE_OWNER);
+                parsedBody.request.headers.td_client.should.equal(CLIENT_ID);
                 done();
             });
         });
