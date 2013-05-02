@@ -8,14 +8,20 @@ var express = require('express'),
 function insecureRoute(req, res) {
     res.json(200, {
         message: "This content should be insecure",
-        secure: false
+        secure: false,
+        request: {
+            headers: req.headers
+        }
     });
 }
 
 function secureRoute(req, res) {
     res.json(200, {
         message: "This content should be secure",
-        secure: true
+        secure: true,
+        request: {
+            headers: req.headers
+        }
     });
 }
 
