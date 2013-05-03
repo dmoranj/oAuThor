@@ -24,7 +24,8 @@ config.resource = {
         loginPath: "/api/login",
         regex: {
             resourceOwner: /api\/(.*)\/.*/,
-            scope: /api\/.*(\/.*)/
+            scope: /api\/.*(\/.*)/,
+            publicScope: /public\/.*/
         }
     },
     proxy: {

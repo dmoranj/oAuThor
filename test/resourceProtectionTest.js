@@ -132,8 +132,17 @@ describe("Resource management", function () {
             });
         });
 
-        it("should reject requests with an outdated token");
+        it("should accept connections to the public resources", function (done) {
+            options.url = 'https://localhost:' + config.resource.proxy.port +  "/public/resources";
 
+            request(options, function (err, response, body) {
+                response.statusCode.should.equal(200);
+
+                done();
+            });
+        });
+
+        it("should reject requests with an outdated token");
     });
 
     afterEach(function (done) {

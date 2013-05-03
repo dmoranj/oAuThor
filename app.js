@@ -55,7 +55,9 @@ function create(callback) {
 
     console.log("Created Server on " + app.get('port'));
     proxies.create(config.resource.original.regex.resourceOwner,
-        config.resource.original.regex.scope, function (error, proxy) {
+        config.resource.original.regex.scope,
+        config.resource.original.regex.publicScope,
+        function (error, proxy) {
             if (error) {
                 console.error("Errror creating Proxy: " + error);
             } else {
