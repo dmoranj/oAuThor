@@ -2,7 +2,7 @@
 
 var users = require("../lib/userService");
 
-exports.create = function(req, res){
+exports.create = function (req, res) {
     users.create(req.body.username, req.body.password, function(error, user) {
         if (error) {
             res.json(error.code, error);
@@ -12,8 +12,8 @@ exports.create = function(req, res){
     });
 };
 
-exports.remove = function(req, res){
-    users.remove(req.params.userId, function(error) {
+exports.remove = function (req, res) {
+    users.remove(req.params.userId, function (error) {
         if (error) {
             res.json(error.code, error);
         } else {
@@ -22,8 +22,8 @@ exports.remove = function(req, res){
     });
 };
 
-exports.get = function(req, res){
-    users.get(req.params.userId, function(error, user) {
+exports.get = function (req, res) {
+    users.get(req.params.userId, function (error, user) {
         if (error) {
             res.json(error.code, error);
         } else {
@@ -32,8 +32,8 @@ exports.get = function(req, res){
     });
 };
 
-exports.list = function(req, res){
-    users.list(function(error, list) {
+exports.list = function (req, res) {
+    users.list(function (error, list) {
         if (error) {
             res.json(error.code, error);
         } else {
@@ -46,10 +46,10 @@ function extractCredentials(authHeader) {
     return new Buffer(authHeader.split(" ")[1], 'base64').toString('ascii').split(":");
 }
 
-exports.authenticate = function(req, res) {
+exports.authenticate = function (req, res) {
     var credentials = extractCredentials(req.headers.authorization);
 
-    users.authenticate(credentials[0], credentials[1], function(error) {
+    users.authenticate(credentials[0], credentials[1], function (error) {
         if (error) {
             res.json(error.code, error);
         } else {
