@@ -9,6 +9,7 @@ function insecureRoute(req, res) {
     res.json(200, {
         message: "This content should be insecure",
         secure: false,
+        public: false,
         request: {
             headers: req.headers
         }
@@ -19,6 +20,7 @@ function secureRoute(req, res) {
     res.json(200, {
         message: "This content should be secure",
         secure: true,
+        public: false,
         request: {
             headers: req.headers
         }
@@ -43,10 +45,22 @@ function login(req, res) {
     }
 }
 
+function publicResources(req, res) {
+    res.json(200, {
+        message: "This content should be public",
+        secure: false,
+        public: true,
+        request: {
+            headers: req.headers
+        }
+    });
+}
+
 function defineMockRoutes(app) {
     app.get('/api/:ownerId/insecure', insecureRoute);
     app.get('/api/:ownerId/secure', secureRoute);
     app.post('/api/login', login);
+    app.get('/public/resources', publicResources);
 }
 
 function createMockApp(callback) {
