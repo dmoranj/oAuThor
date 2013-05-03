@@ -2,7 +2,9 @@
 
 var config = require("../config").config,
     request = require("request"),
-    currentCredentials = null;
+    async = require("async"),
+    currentCredentials = null,
+    resourceOwnerData = null;
 
 
 function getCredentials(callback) {
@@ -48,7 +50,7 @@ function getToken(callback) {
         } else if (response.statusCode != 200) {
             callback("Unexpected status code getting token: " + response.statusCode);
         } else {
-            callback(body);
+            callback(null, body);
         }
     });
 }
@@ -57,6 +59,35 @@ function getAuthorizationString() {
     return 'Basic ' + new Buffer(currentCredentials.id + ':' + currentCredentials.secret).toString('base64');
 }
 
+function signUpOnResourceServer(callback) {
+    var options = {
+        url: "http://" + config.resourceServer.host + ":" + config.resourceServer.port + "/public/register",
+        method: "POST",
+        json: {
+            username: currentCredentials.id,
+            password: "notReallyImportantPassword"
+        }
+    };
+
+    request(options, function (error, response, body) {
+        if (error) {
+            callback(error);
+        } else if (response.statusCode != 200) {
+            callback("Unexpected status signing up in the resource server: " + response.statusCode);
+        } else {
+            resourceOwnerData = body;
+            callback(null, body);
+        }
+    });
+}
+
+function initialize(callback) {
+    async.series([
+        getCredentials,
+        signUpOnResourceServer
+    ], callback);
+}
+
 exports.getAuthorizationString = getAuthorizationString;
 exports.getToken = getToken;
-exports.getCredentials = getCredentials;
+exports.initialize = initialize;

@@ -26,7 +26,7 @@ app.configure('development', function () {
 });
 
 app.post('/login', users.authenticate);
-app.post('/user', users.create);
+app.post('/public/register', users.create);
 app.get('/user/:userId', users.get);
 app.get('/user', users.list);
 app.delete('/user/:userId', users.remove);
