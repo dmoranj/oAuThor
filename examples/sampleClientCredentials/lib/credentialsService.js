@@ -3,11 +3,13 @@
 var config = require("../config").config,
     request = require("request"),
     async = require("async"),
-    currentCredentials = null,
-    resourceOwnerData = null;
+    credentials = {
+        resourceOwner: null,
+        client: null
+    };
 
 
-function getCredentials(callback) {
+function signUpAuthServer(callback) {
     var options = {
         url: "http://" + config.authServer.host + ":" + config.authServer.port + "/register",
         method: "POST",
@@ -26,7 +28,7 @@ function getCredentials(callback) {
             console.error("Unexpected response from auth server: " + response.statusCode);
             callback(error);
         } else {
-            currentCredentials = body;
+            credentials.client = body;
             callback(null, body);
         }
     });
@@ -34,7 +36,8 @@ function getCredentials(callback) {
 
 function getToken(callback) {
     var options = {
-        url: "http://" + config.resourceServer.host + ":" + config.resourceServer.port + "/user/" + currentCredentials.id + "/diary",
+        url: "http://" + config.authServer.host + ":" + config.authServer.port + "/token",
+        method: "POST",
         json: {
             "scope": "/*",
             "grant_type": "client_credentials"
@@ -56,7 +59,7 @@ function getToken(callback) {
 }
 
 function getAuthorizationString() {
-    return 'Basic ' + new Buffer(currentCredentials.id + ':' + currentCredentials.secret).toString('base64');
+    return 'Basic ' + new Buffer(credentials.client.id + ':' + credentials.client.secret).toString('base64');
 }
 
 function signUpOnResourceServer(callback) {
@@ -64,7 +67,7 @@ function signUpOnResourceServer(callback) {
         url: "http://" + config.resourceServer.host + ":" + config.resourceServer.port + "/public/register",
         method: "POST",
         json: {
-            username: currentCredentials.id,
+            username: credentials.client.id,
             password: "notReallyImportantPassword"
         }
     };
@@ -75,7 +78,7 @@ function signUpOnResourceServer(callback) {
         } else if (response.statusCode != 200) {
             callback("Unexpected status signing up in the resource server: " + response.statusCode);
         } else {
-            resourceOwnerData = body;
+            credentials.resourceOwner = body;
             callback(null, body);
         }
     });
@@ -83,11 +86,28 @@ function signUpOnResourceServer(callback) {
 
 function initialize(callback) {
     async.series([
-        getCredentials,
+        signUpAuthServer,
         signUpOnResourceServer
     ], callback);
+}
+
+function requestWithToken(options, callback) {
+    getToken(function (error, token) {
+        if (error) {
+            callback(error);
+        } else {
+            if (!options.headers) {
+                options.headers = {};
+            }
+
+            options.headers.Authorization = "Bearer " + token.access_token;
+            request(options, callback);
+        }
+    });
 }
 
 exports.getAuthorizationString = getAuthorizationString;
 exports.getToken = getToken;
 exports.initialize = initialize;
+exports.credentials = credentials;
+exports.withToken = requestWithToken;
