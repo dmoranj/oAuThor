@@ -9,12 +9,15 @@ var express = require('express'),
     http = require('http'),
     path = require('path'),
     fs = require('fs'),
-    config = require('./config').config;
+    config = require('./config').config,
+    options;
 
-var options = {
-    key: fs.readFileSync(config.ssl.key),
-    cert: fs.readFileSync(config.ssl.certificate)
-};
+if (config.endpoint.ssl) {
+    options = {
+        key: fs.readFileSync(config.ssl.key),
+        cert: fs.readFileSync(config.ssl.certificate)
+    };
+}
 
 function defineRoutes(app) {
     app.post('/register', clientRoutes.create);
