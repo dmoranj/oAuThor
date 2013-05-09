@@ -38,6 +38,7 @@ exports.config = config;
 exports.setConfig = function (newConfig) {
     newConfig.resource.original.regex.resourceOwner = eval(newConfig.resource.original.regex.resourceOwner);
     newConfig.resource.original.regex.scope = eval(newConfig.resource.original.regex.scope);
+    newConfig.resource.original.regex.publicScope = eval(newConfig.resource.original.regex.publicScope);
 
     config.endpoint = newConfig.endpoint;
     config.ssl = newConfig.ssl;

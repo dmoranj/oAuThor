@@ -22,7 +22,8 @@
             "loginPath": "/login",
             "regex": {
                 "resourceOwner": "/user\\/(.*)\\/.*/",
-                "scope": "/user\\/.*(\\/.*)/"
+                "scope": "/user\\/.*(\\/.*)/",
+                "publicScope": "/public\\/.*/"
             }
         },
         "proxy": {

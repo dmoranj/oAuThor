@@ -8,7 +8,7 @@ function get(userId, callback) {
 }
 
 function create(userName, userPassword, callback) {
-    var userId = uuid.v4();
+    var userId = userName;
 
     users[userId] = {
         id: userId,
