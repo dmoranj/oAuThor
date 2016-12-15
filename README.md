@@ -93,5 +93,5 @@ Implementation details
 ----------------------
 The system is implemented as a single Node.JS application, using [Express](http://expressjs.com/) for REST 
 interaction and [node-http-proxy](https://github.com/nodejitsu/node-http-proxy) for the authorization proxy. BDD tests
-are executed with [mocha](http://visionmedia.github.io/mocha/) and [should](https://github.com/visionmedia/should.js), 
+are executed with [mocha](http://mochajs.org/) and [should](https://github.com/visionmedia/should.js), 
 and cover the functionality end to end. Test coverage is provided by [istanbul](https://github.com/gotwarlost/istanbul).
